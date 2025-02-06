@@ -19,9 +19,9 @@ INSERT INTO Feeding (animal_id, feeding_time, food_type) VALUES
 (2, NOW(), 'Grain');
 
 -- Insert Transactions
-INSERT INTO Transactions (farm_id, transaction_date, transaction_type, amount, description) VALUES 
-(1, '2024-02-01', 'purchase', 1500.00, 'Purchased 500kg of cattle feed'),
-(1, '2024-02-05', 'sale', 2200.00, 'Sold 2 dairy cows to a local farm');
+INSERT INTO Transactions (transaction_date, transaction_type, amount, description) VALUES 
+('2024-02-01', 'purchase', 1500.00, 'Purchased 500kg of cattle feed'),
+('2024-02-05', 'sale', 2200.00, 'Sold 2 dairy cows to a local farm');
 
 -- Insert Medical History
 INSERT INTO Medical_History (animal_id, date, treatment, vet_notes) VALUES 

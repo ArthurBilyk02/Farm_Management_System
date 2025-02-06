@@ -36,12 +36,10 @@ CREATE TABLE IF NOT EXISTS Feeding (
 -- Transactions Table: Manages financial records
 CREATE TABLE IF NOT EXISTS Transactions (
     transaction_id INT AUTO_INCREMENT PRIMARY KEY,
-    farm_id INT NOT NULL,
     transaction_date DATE NOT NULL,
     transaction_type ENUM('purchase', 'sale') NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
-    description TEXT,
-    FOREIGN KEY (farm_id) REFERENCES Farm(id) ON DELETE CASCADE
+    description TEXT
 );
 
 -- Medical History Table: Stores medical records for animals
@@ -53,3 +51,5 @@ CREATE TABLE IF NOT EXISTS Medical_History (
     vet_notes TEXT,
     FOREIGN KEY (animal_id) REFERENCES Animal(animal_id) ON DELETE CASCADE
 );
+
+
