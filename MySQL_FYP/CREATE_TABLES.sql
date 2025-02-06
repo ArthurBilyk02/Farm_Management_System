@@ -52,4 +52,14 @@ CREATE TABLE IF NOT EXISTS Medical_History (
     FOREIGN KEY (animal_id) REFERENCES Animal(animal_id) ON DELETE CASCADE
 );
 
+CREATE TABLE Users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'employee', 'public') NOT NULL DEFAULT 'public',
+    api_key VARCHAR(255) UNIQUE, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 

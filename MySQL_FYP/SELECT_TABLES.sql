@@ -4,3 +4,4 @@ SELECT * FROM Feeding_Schedule;
 SELECT * FROM Feeding;
 SELECT * FROM Transactions;
 SELECT * FROM Medical_History;
+SELECT * FROM Users;

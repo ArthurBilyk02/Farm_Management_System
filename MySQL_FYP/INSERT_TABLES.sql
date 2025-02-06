@@ -27,3 +27,10 @@ INSERT INTO Transactions (transaction_date, transaction_type, amount, descriptio
 INSERT INTO Medical_History (animal_id, date, treatment, vet_notes) VALUES 
 (1, '2024-02-10', 'Vaccination', 'Routine vaccination.'),
 (2, '2024-02-15', 'Antibiotics', 'Treatment for respiratory infection.');
+
+INSERT INTO Users (username, password, role) 
+VALUES 
+('admin1', 'hashedpassword1', 'admin'),
+('employee1', 'hashedpassword2', 'employee'),
+('public1', NULL, 'public');
+
