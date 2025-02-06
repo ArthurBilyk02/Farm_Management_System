@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../db');
+const { verifyToken, requireRole } = require('../../middlewares/authMiddleware');
 
-// Get all species
 router.get('/', (req, res) => {
     db.query('SELECT * FROM Species', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -10,11 +10,11 @@ router.get('/', (req, res) => {
     });
 });
 
-// Add a new species
-router.post('/', (req, res) => {
+router.post('/', verifyToken, requireRole(['admin', 'employee']), (req, res) => {
     const { type_id, species_name, description } = req.body;
-    if (!type_id || !species_name) {
-        return res.status(400).json({ error: "Type ID and Species Name are required" });
+
+    if (!type_id || !species_name || !description) {
+        return res.status(400).json({ error: "All fields are required" });
     }
 
     db.query('INSERT INTO Species (type_id, species_name, description) VALUES (?, ?, ?)',

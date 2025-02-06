@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../db');
+const { verifyToken, requireRole } = require('../../middlewares/authMiddleware');
 
-// Get all transactions
 router.get('/', (req, res) => {
     db.query('SELECT * FROM Transactions', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -10,18 +10,18 @@ router.get('/', (req, res) => {
     });
 });
 
-// Add a new transaction
-router.post('/', (req, res) => {
-    const { farm_id, transaction_date, transaction_type, amount, description } = req.body;
-    if (!farm_id || !transaction_date || !transaction_type || !amount) {
+router.post('/', verifyToken, requireRole(['admin', 'employee']), (req, res) => {
+    const {transaction_date, transaction_type, amount, description } = req.body;
+
+    if (!transaction_date || !transaction_type || !amount || !description) {
         return res.status(400).json({ error: "All fields are required" });
     }
 
-    db.query('INSERT INTO Transactions (farm_id, transaction_date, transaction_type, amount, description) VALUES (?, ?, ?, ?, ?)',
-        [farm_id, transaction_date, transaction_type, amount, description],
+    db.query('INSERT INTO Transactions (transaction_date, transaction_type, amount, description) VALUES (?, ?, ?, ?)',
+        [transaction_date, transaction_type, amount, description],
         (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Transaction added", id: result.insertId });
+            res.json({ message: "Transaction added successfully", id: result.insertId });
         }
     );
 });
