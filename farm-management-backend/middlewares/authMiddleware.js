@@ -21,7 +21,7 @@ exports.verifyToken = (req, res, next) => {
 // Middleware to restrict access based on role
 exports.requireRole = (roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.user.role)) {
+        if (!req.user || !roles.includes(req.user.role_name)) {
             return res.status(403).json({ error: "Access denied. Insufficient permissions." });
         }
         next();

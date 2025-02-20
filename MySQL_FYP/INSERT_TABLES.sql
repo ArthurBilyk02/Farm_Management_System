@@ -1,5 +1,5 @@
 -- Insert Species
-INSERT INTO Species (type_id, species_name, description) VALUES 
+INSERT INTO Species (species_id, species_name, description) VALUES 
 (1, 'Dairy Cow', 'High-yield dairy cows suitable for milk production.'),
 (2, 'Sheep', 'Sheep bred for wool and meat.');
 

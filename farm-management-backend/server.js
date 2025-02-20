@@ -12,6 +12,7 @@ const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/v1/adminRoutes');
 const employeeRoutes = require('./routes/v1/employeeRoutes');
 const publicRoutes = require('./routes/v1/publicRoutes');
+const herdRoutes = require('./routes/v1/herdRoutes');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/v1/feeding', feedingRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
 app.use('/api/v1/medical', medicalRoutes);
 app.use('/api/v1/species', speciesRoutes);
+app.use('/api/v1/herd', herdRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;

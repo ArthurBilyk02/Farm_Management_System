@@ -3,9 +3,8 @@ const router = express.Router();
 const db = require('../../db');
 const { verifyToken, requireRole } = require('../../middlewares/authMiddleware');
 
-// Admin - View All Users and Their Roles
 router.get('/dashboard', verifyToken, requireRole(['admin']), (req, res) => {
-    const query = `SELECT id, username, role, created_at FROM Users`;
+    const query = `SELECT employee_id, email, role_name, farm_id FROM Users`;
 
     db.query(query, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -16,34 +15,36 @@ router.get('/dashboard', verifyToken, requireRole(['admin']), (req, res) => {
     });
 });
 
-// Admin - Edit User Role
-router.put('/edit-role/:id', verifyToken, requireRole(['admin']), (req, res) => {
-    const { id } = req.params;
-    const { role } = req.body;
+router.put('/edit-role/:employee_id', verifyToken, requireRole(['admin']), (req, res) => {
+    const { employee_id } = req.params;
+    const { role_name } = req.body;
 
-    if (!role || !['admin', 'employee', 'public'].includes(role)) {
+    if (!role_name || !['admin', 'employee', 'public'].includes(role_name)) {
         return res.status(400).json({ error: "Invalid role. Must be 'admin', 'employee', or 'public'." });
     }
 
-    db.query('UPDATE Users SET role = ? WHERE id = ?', [role, id], (err, result) => {
+    db.query('SELECT * FROM Users WHERE employee_id = ?', [employee_id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "User not found." });
-        }
-        res.json({ message: "User role updated successfully" });
+        if (results.length === 0) return res.status(404).json({ error: "User not found." });
+
+        db.query('UPDATE Users SET role_name = ? WHERE employee_id = ?', [role_name, employee_id], (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: `User role updated to '${role_name}' successfully` });
+        });
     });
 });
 
-// Admin - Delete User
-router.delete('/delete-user/:id', verifyToken, requireRole(['admin']), (req, res) => {
-    const { id } = req.params;
+router.delete('/delete-user/:employee_id', verifyToken, requireRole(['admin']), (req, res) => {
+    const { employee_id } = req.params;
 
-    db.query('DELETE FROM Users WHERE id = ?', [id], (err, result) => {
+    db.query('SELECT * FROM Users WHERE employee_id = ?', [employee_id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "User not found." });
-        }
-        res.json({ message: "User deleted successfully" });
+        if (results.length === 0) return res.status(404).json({ error: "User not found." });
+
+        db.query('DELETE FROM Users WHERE employee_id = ?', [employee_id], (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "User deleted successfully" });
+        });
     });
 });
 
