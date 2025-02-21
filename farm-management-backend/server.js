@@ -5,7 +5,7 @@ const db = require('./db');
 
 const speciesRoutes = require('./routes/v1/speciesRoutes');
 const animalRoutes = require('./routes/v1/animalRoutes');
-const feedingRoutes = require('./routes/v1/feedingRoutes');
+const feedingScheduleRoutes = require('./routes/v1/feedingScheduleRoutes');
 const transactionRoutes = require('./routes/v1/transactionRoutes');
 const medicalRoutes = require('./routes/v1/medicalRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -26,7 +26,7 @@ app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/employee', employeeRoutes);
 app.use('/api/v1/public', publicRoutes);
 app.use('/api/v1/animals', animalRoutes);
-app.use('/api/v1/feeding', feedingRoutes);
+app.use('/api/v1/feeding-schedule', feedingScheduleRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
 app.use('/api/v1/medical', medicalRoutes);
 app.use('/api/v1/species', speciesRoutes);
