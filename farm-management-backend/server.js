@@ -15,6 +15,7 @@ const publicRoutes = require('./routes/v1/publicRoutes');
 const herdRoutes = require('./routes/v1/herdRoutes');
 const productStockRoutes = require('./routes/v1/productStockRoutes');
 const supplierRoutes = require('./routes/v1/supplierRoutes');
+const farmRoutes = require('./routes/v1/farmRoutes');
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/v1/species', speciesRoutes);
 app.use('/api/v1/herd', herdRoutes);
 app.use('/api/v1/product-stock', productStockRoutes);
 app.use('/api/v1/suppliers', supplierRoutes);
+app.use('/api/v1/farm', farmRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
