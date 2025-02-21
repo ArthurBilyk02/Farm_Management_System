@@ -13,6 +13,8 @@ const adminRoutes = require('./routes/v1/adminRoutes');
 const employeeRoutes = require('./routes/v1/employeeRoutes');
 const publicRoutes = require('./routes/v1/publicRoutes');
 const herdRoutes = require('./routes/v1/herdRoutes');
+const productStockRoutes = require('./routes/v1/productStockRoutes');
+const supplierRoutes = require('./routes/v1/supplierRoutes');
 
 const app = express();
 
@@ -31,6 +33,8 @@ app.use('/api/v1/transactions', transactionRoutes);
 app.use('/api/v1/medical', medicalRoutes);
 app.use('/api/v1/species', speciesRoutes);
 app.use('/api/v1/herd', herdRoutes);
+app.use('/api/v1/product-stock', productStockRoutes);
+app.use('/api/v1/suppliers', supplierRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
