@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS Herd (
     date_created DATE,
     schedule_id INT,
     health_status VARCHAR(255),
-    description VARCHAR(255), -- Fixed typo
+    description VARCHAR(255),
     FOREIGN KEY (farm_id) REFERENCES Farm(farm_id) ON DELETE CASCADE,
     FOREIGN KEY (species_id) REFERENCES Species(species_id) ON DELETE CASCADE
 );
@@ -78,6 +78,22 @@ CREATE TABLE IF NOT EXISTS Feeding_Schedule (
     FOREIGN KEY (herd_id) REFERENCES Herd(herd_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS Supplier (
+    supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+    supplier_name VARCHAR(255) NOT NULL,
+    contact_info VARCHAR(255) NOT NULL,
+    product_type VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Product_Stock (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    food_type VARCHAR(255) NOT NULL,
+    stock_level INT NOT NULL DEFAULT 0,
+    reorder_threshold INT NOT NULL DEFAULT 5,
+    supplier_id INT NOT NULL,
+    FOREIGN KEY (supplier_id) REFERENCES Supplier(supplier_id) ON DELETE CASCADE
+);
+
 -- Table: Transactions
 CREATE TABLE IF NOT EXISTS Transactions (
     transaction_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -85,7 +101,8 @@ CREATE TABLE IF NOT EXISTS Transactions (
     transaction_type ENUM('Stock_Purchase', 'Stock_Sale', 'Animal_Purchase', 'Animal_Sale') NOT NULL,
     quantity INT NOT NULL,
     transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    total_cost FLOAT NOT NULL
+    total_cost FLOAT NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES Product_Stock(product_id) ON DELETE CASCADE
 );
 
 -- Table: Users
@@ -98,6 +115,26 @@ CREATE TABLE IF NOT EXISTS Users (
     FOREIGN KEY (farm_id) REFERENCES Farm(farm_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS Veterinary_Visits (
+    visit_id INT AUTO_INCREMENT PRIMARY KEY,
+    herd_id INT NOT NULL,
+    vet_name VARCHAR(255),
+    visit_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    purpose VARCHAR(255),
+    treatment TEXT,
+    FOREIGN KEY (herd_id) REFERENCES Herd(herd_id) ON DELETE CASCADE
+);
+
+-- Table: Health_Issues
+CREATE TABLE IF NOT EXISTS Health_Issues (
+    health_issue_id INT AUTO_INCREMENT PRIMARY KEY,
+    herd_id INT NOT NULL,
+    issue_description VARCHAR(255) NOT NULL,
+    severity ENUM('Mild', 'Moderate', 'Severe') NOT NULL,
+    resolution_status ENUM('Ongoing', 'Resolved', 'Critical') NOT NULL DEFAULT 'Ongoing',
+    FOREIGN KEY (herd_id) REFERENCES Herd(herd_id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS Medical_History (
     medical_id INT AUTO_INCREMENT PRIMARY KEY,
     herd_id INT NOT NULL,
@@ -106,9 +143,50 @@ CREATE TABLE IF NOT EXISTS Medical_History (
     treatment VARCHAR(255),
     vet_notes TEXT,
     date DATE,
-    FOREIGN KEY (herd_id) REFERENCES Herd(herd_id) ON DELETE CASCADE
-    -- FOREIGN KEY (visit_id) REFERENCES Veterinary_Visits(visit_id) ON DELETE CASCADE,
+    FOREIGN KEY (herd_id) REFERENCES Herd(herd_id) ON DELETE CASCADE,
+    FOREIGN KEY (visit_id) REFERENCES Veterinary_Visits(visit_id) ON DELETE CASCADE
     -- FOREIGN KEY (health_issue_id) REFERENCES Health_Issues(health_issue_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Environmental_Conditions (
+    env_id INT AUTO_INCREMENT PRIMARY KEY,
+    farm_id INT NOT NULL,
+    temperature FLOAT,
+    humidity FLOAT,
+    water_quality VARCHAR(255),
+    recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (farm_id) REFERENCES Farm(farm_id) ON DELETE CASCADE
+);
+
+-- Table: Performance_Metrics
+CREATE TABLE IF NOT EXISTS Performance_Metrics (
+    metric_id INT AUTO_INCREMENT PRIMARY KEY,
+    herd_id INT NOT NULL,
+    metric_type VARCHAR(255) NOT NULL,
+    value FLOAT NOT NULL, 
+    recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (herd_id) REFERENCES Herd(herd_id) ON DELETE CASCADE
+);
+
+-- Table: Alert_System
+CREATE TABLE IF NOT EXISTS Alert_System (
+    alert_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    alert_type ENUM('Low Stock', 'Expired Stock', 'System Alert') NOT NULL,
+    alert_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('Pending', 'Resolved') DEFAULT 'Pending',
+    FOREIGN KEY (product_id) REFERENCES Product_Stock(product_id) ON DELETE CASCADE
+);
+
+-- Table: Feeding_Type
+CREATE TABLE IF NOT EXISTS Feeding_Type (
+    feeding_type_id INT AUTO_INCREMENT PRIMARY KEY,
+    food_type VARCHAR(255) NOT NULL,
+    schedule_id INT NOT NULL,
+    species_id INT NOT NULL,
+    description VARCHAR(255),
+    FOREIGN KEY (schedule_id) REFERENCES Feeding_Schedule(schedule_id) ON DELETE CASCADE,
+    FOREIGN KEY (species_id) REFERENCES Species(species_id) ON DELETE CASCADE
 );
 
 -- Insert Farms
@@ -121,7 +199,8 @@ VALUES
 INSERT INTO Species (species_id, species_name, description) 
 VALUES 
 (1, 'Dairy Cow', 'High-yield dairy cows suitable for milk production.'),
-(2, 'Sheep', 'Sheep bred for wool and meat.');
+(2, 'Sheep', 'Sheep bred for wool and meat.'),
+(3, 'Chicken', 'Poultry farming for eggs and meat');
 
 -- Insert Herds
 INSERT INTO Herd (herd_id, herd_name, farm_id, species_id, size, date_created, schedule_id, health_status, description) 
@@ -139,13 +218,36 @@ VALUES
 INSERT INTO Feeding_Schedule (schedule_id, herd_id, food_type, feeding_interval, recommended_food, health) 
 VALUES 
 (1, 1, 'Hay', 'Every 6 hours', 'Fresh grass and hay', 'Optimal'),
-(2, 2, 'Fish Feed', 'Every 8 hours', 'Fish Feed', 'Good');
+(2, 2, 'Fish Feed', 'Every 8 hours', 'Fish Feed', 'Good'),
+(3, 2, 'Grains', 'Every 12 hours', 'Balanced grains for poultry', 'Good');
+
+INSERT INTO Supplier (supplier_name, contact_info, product_type)
+VALUES 
+    ('Agro Feeds', 'contact@agrofeeds.com', 'Animal Feed'),
+    ('Farm Supplies Ltd', 'info@farmsupplies.com', 'Feed'),
+    ('Aquaculture Inc.', 'support@aqua.com', 'Fish Feed'),
+    ('Poultry Experts', 'contact@poultryx.com', 'Chicken Feed'),
+    ('Livestock Solutions', 'info@livestock.com', 'Animals'),
+    ('Sheep Breeders', 'support@sheepbreeders.com', 'Animals'),
+    ('Veterinary Medics', 'vetmed@vets.com', 'Medicine');
+    
+INSERT INTO Product_Stock (food_type, stock_level, reorder_threshold, supplier_id)
+VALUES 
+    ('Cattle Feed', 200, 50, 1),
+    ('Goat Feed', 100, 20, 2),
+    ('Fish Pellets', 500, 100, 3),
+    ('Chicken Grain', 300, 50, 4),
+    ('Cow', 10, 2, 5),
+    ('Sheep', 5, 1, 6);
+
 
 -- Insert Transactions
-INSERT INTO Transactions (transaction_id, product_id, transaction_type, quantity, transaction_date, total_cost) 
+INSERT INTO Transactions (product_id, transaction_type, quantity, transaction_date, total_cost)
 VALUES 
-(1, 1, 'Purchase', 500, '2024-02-01', 1500.00),
-(2, 2, 'Sale', 2, '2024-02-05', 2200.00);
+    (1, 'Stock_Purchase', 100, NOW(), 500.00),
+    (2, 'Stock_Sale', 50, NOW(), 300.00),
+    (3, 'Animal_Purchase', 5, NOW(), 2500.00),
+    (4, 'Animal_Sale', 2, NOW(), 1000.00);
 
 -- Insert Users
 INSERT INTO Users (employee_id, farm_id, email, password, role_name) 
@@ -153,6 +255,46 @@ VALUES
 (1, 1, 'admin@farm.com', 'hashedpassword1', 'admin'),
 (2, 1, 'employee@farm.com', 'hashedpassword2', 'employee');
 
+INSERT INTO Veterinary_Visits (herd_id, vet_name, purpose, treatment)
+VALUES 
+(1, 'Dr. Smith', 'Routine Checkup', 'General inspection and deworming'),
+(2, 'Dr. Brown', 'Vaccination', 'Annual shots and health assessment');
+
 INSERT INTO Medical_History (herd_id, visit_id, health_issue_id, treatment, vet_notes, date) 
 VALUES 
 (1, 1, 1, 'Antibiotics', 'Observed slight improvement', '2024-03-16');
+
+INSERT INTO Health_Issues (herd_id, issue_description, severity, resolution_status)
+VALUES 
+(1, 'Foot and Mouth Disease detected', 'Severe', 'Ongoing'),
+(2, 'Mild dehydration observed', 'Mild', 'Resolved'),
+(1, 'Respiratory infection outbreak', 'Moderate', 'Ongoing');
+
+INSERT INTO Environmental_Conditions (farm_id, temperature, humidity, water_quality)
+VALUES 
+    (1, 25.5, 60.2, 'Good'),
+    (2, 18.3, 75.0, 'Moderate'),
+    (1, 30.1, 50.5, 'Excellent'),
+    (2, 22.7, 80.1, 'Poor');
+    
+INSERT INTO Performance_Metrics (herd_id, metric_type, value)
+VALUES 
+    (1, 'Feed Conversion Rate', 2.5),
+    (2, 'Weight Gain Rate', 1.2),
+    (1, 'Milk Production', 30.0),
+    (2, 'Egg Production', 200.0);
+
+INSERT INTO Alert_System (product_id, alert_type, status) 
+VALUES 
+    (1, 'Low Stock', 'Pending'),
+    (2, 'Expired Stock', 'Pending'),
+    (3, 'System Alert', 'Resolved');
+    
+INSERT INTO Feeding_Type (food_type, schedule_id, species_id, description) 
+VALUES 
+    ('Grass', 1, 1, 'Cattle grass feeding'),
+    ('Pellets', 2, 2, 'Fish pellet feeding'),
+    ('Grains', 3, 3, 'Chicken grain feeding');
+
+
+
