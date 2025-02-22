@@ -19,6 +19,7 @@ const farmRoutes = require('./routes/v1/farmRoutes');
 const veterinaryRoutes = require('./routes/v1/veterinaryRoutes');
 const healthIssuesRoutes = require('./routes/v1/healthIssuesRoutes');
 const environmentalConditionsRoutes = require('./routes/v1/environmentalConditionsRoutes');
+const performanceMetricsRoutes = require('./routes/v1/performanceMetricsRoutes');
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/v1/farm', farmRoutes);
 app.use('/api/v1/veterinary-visits', veterinaryRoutes);
 app.use('/api/v1/health-issues', healthIssuesRoutes);
 app.use('/api/v1/environmental-conditions', environmentalConditionsRoutes);
+app.use('/api/v1/performance-metrics', performanceMetricsRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
