@@ -21,7 +21,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-// Create a New Environmental Condition (Admin/Employee)
+// Create a New Environmental Condition
 router.post('/', verifyToken, requireRole(['admin', 'employee']), (req, res) => {
     const { farm_id, temperature, humidity, water_quality } = req.body;
 
@@ -39,7 +39,7 @@ router.post('/', verifyToken, requireRole(['admin', 'employee']), (req, res) => 
     );
 });
 
-// Update an Existing Environmental Condition (Admin/Employee)
+// Update an Existing Environmental Condition
 router.put('/:id', verifyToken, requireRole(['admin', 'employee']), (req, res) => {
     const { id } = req.params;
     const { temperature, humidity, water_quality } = req.body;
