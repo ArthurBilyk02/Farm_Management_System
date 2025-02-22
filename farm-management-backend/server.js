@@ -17,6 +17,7 @@ const productStockRoutes = require('./routes/v1/productStockRoutes');
 const supplierRoutes = require('./routes/v1/supplierRoutes');
 const farmRoutes = require('./routes/v1/farmRoutes');
 const veterinaryRoutes = require('./routes/v1/veterinaryRoutes');
+const healthIssuesRoutes = require('./routes/v1/healthIssuesRoutes');
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use('/api/v1/product-stock', productStockRoutes);
 app.use('/api/v1/suppliers', supplierRoutes);
 app.use('/api/v1/farm', farmRoutes);
 app.use('/api/v1/veterinary-visits', veterinaryRoutes);
+app.use('/api/v1/health-issues', healthIssuesRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
