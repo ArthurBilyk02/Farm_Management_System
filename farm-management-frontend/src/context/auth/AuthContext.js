@@ -1,24 +1,32 @@
-import { createContext, useState } from "react";
-import axios from "axios";
+import { createContext, useContext, useState, useEffect } from "react";
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [token, setToken] = useState(localStorage.getItem("token") || null);
+    const [user, setUser] = useState(null);
 
-    const login = async (email, password) => {
-        try {
-            const response = await axios.post("http://localhost:5000/api/v1/auth/login", { email, password });
-            setToken(response.data.token);
-            localStorage.setItem("token", response.data.token);
-        } catch (error) {
-            console.error("Login failed", error);
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            setUser({ token });
         }
+    }, []);
+
+    const login = (token) => {
+        localStorage.setItem("token", token);
+        setUser({ token });
+    };
+
+    const logout = () => {
+        localStorage.removeItem("token");
+        setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ token, login }}>
+        <AuthContext.Provider value={{ user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 };
+
+export const useAuth = () => useContext(AuthContext);

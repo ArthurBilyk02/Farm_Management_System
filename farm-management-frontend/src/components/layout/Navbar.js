@@ -1,14 +1,29 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/auth/AuthContext";
 import "./Navbar.css";
 
 const Navbar = () => {
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
+
     return (
         <nav className="navbar">
-            <h1>Animal Management</h1>
-            <div className="navbar-links">
-                <Link to="/dashboard">Dashboard</Link>
-                <Link to="/farms">Farms</Link>
-                <Link to="/login">Login</Link>
+            <h1>Farm Management</h1>
+            <div className="nav-links">
+                {user ? (
+                    <>
+                        <Link to="/dashboard">Dashboard</Link>
+                        <Link to="/farms">Farms</Link>
+                        <button onClick={handleLogout}>Logout</button>
+                    </>
+                ) : (
+                    <Link to="/login">Login</Link>
+                )}
             </div>
         </nav>
     );
