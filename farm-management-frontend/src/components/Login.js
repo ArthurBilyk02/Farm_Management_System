@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../context/auth/AuthContext"; // ✅ Ensure correct import
+import { useAuth } from "../context/auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -12,7 +12,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
-
+    
         try {
             const response = await fetch("http://localhost:5000/api/v1/auth/login", {
                 method: "POST",
@@ -21,16 +21,19 @@ const Login = () => {
                 },
                 body: JSON.stringify({ email, password }),
             });
-
+    
             const data = await response.json();
-
+            console.log("Login response:", data);
+    
             if (!response.ok) {
                 throw new Error(data.error || "Login failed");
             }
-
-            console.log("Login successful! Storing token:", data.token); // ✅ Debugging
-            login(data.token);
-
+    
+            if (!data.farm_id) { 
+                throw new Error("No farm_id received from backend");
+            }
+    
+            login(data.token, data.farm_id);
             navigate("/dashboard");
         } catch (error) {
             setError(error.message);

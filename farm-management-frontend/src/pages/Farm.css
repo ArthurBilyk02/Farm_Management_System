@@ -1,0 +1,19 @@
+.farms-container {
+    padding: 20px;
+}
+
+.farms-container h2 {
+    color: #4CAF50;
+}
+
+.farms-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.farms-container li {
+    background: #f3f3f3;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}

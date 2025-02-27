@@ -55,6 +55,10 @@ exports.login = (req, res) => {
             { expiresIn: process.env.TOKEN_EXPIRY }
         );
 
-        res.json({ message: "Login successful", token });
+        res.json({ 
+            message: "Login successful",
+            token,
+            farm_id: user.farm_id
+        });
     });
 };

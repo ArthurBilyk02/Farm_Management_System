@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/auth/AuthContext"; // Ensure this is wrapped around Router
+import { AuthProvider } from "./context/auth/AuthContext";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import Farms from "./pages/Farms";
+import Farm from "./pages/Farm";
 import Herds from "./pages/Herds";
 import Animals from "./pages/Animals";
 import Feeding from "./pages/Feeding";
@@ -31,11 +31,14 @@ function App() {
                             {/* Protected Routes for Logged-in Users */}
                             <Route element={<ProtectedRoutes />}>
                                 <Route path="/dashboard" element={<Dashboard />} />
-                                <Route path="/farms" element={<Farms />} />
+                                <Route path="/farm" element={<Farm />} />
                                 <Route path="/herds" element={<Herds />} />
                                 <Route path="/animals" element={<Animals />} />
                                 <Route path="/feeding" element={<Feeding />} />
                                 <Route path="/transactions" element={<Transactions />} />
+
+                                {/* Specific farm route (with farmId parameter) */}
+                                <Route path="/farm/:farmId" element={<Farm />} />
                             </Route>
                         </Routes>
                     </div>
