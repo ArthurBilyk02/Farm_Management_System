@@ -13,7 +13,7 @@ const Navbar = () => {
 
     return (
         <nav className="navbar">
-            <h1>Farm Management</h1>
+            <h1>Animal Management</h1>
             <div className="nav-links">
                 {user ? (
                     <>
