@@ -12,29 +12,31 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
-    
+
         try {
             const response = await fetch("http://localhost:5000/api/v1/auth/login", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             });
-    
+
             const data = await response.json();
-            console.log("Login response:", data);
-    
+
             if (!response.ok) {
                 throw new Error(data.error || "Login failed");
             }
-    
-            if (!data.farm_id) { 
-                throw new Error("No farm_id received from backend");
+
+            console.log("Login Successful - Storing:", data);
+
+            // Store user data in context and local storage
+            login(data.token, data.role_name, data.farm_id);
+
+            // Redirect based on role
+            if (data.role_name === "admin") {
+                navigate("/dashboard");
+            } else {
+                navigate("/farm");
             }
-    
-            login(data.token, data.farm_id);
-            navigate("/dashboard");
         } catch (error) {
             setError(error.message);
         }
@@ -45,20 +47,8 @@ const Login = () => {
             <h2>Login</h2>
             {error && <p className="error">{error}</p>}
             <form onSubmit={handleSubmit} className="login-form">
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
+                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 <button type="submit">Login</button>
             </form>
         </div>

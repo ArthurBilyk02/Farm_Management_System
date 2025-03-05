@@ -2,6 +2,7 @@ import axios from "axios";
 
 const API_BASE_URL = "http://localhost:5000/api/v1";
 
+// Fetch all farms
 export const fetchFarms = async (token) => {
     try {
         const response = await fetch(`${API_BASE_URL}/farms`, {
@@ -23,6 +24,7 @@ export const fetchFarms = async (token) => {
     }
 };
 
+// Fetch farm by ID
 export const fetchFarm = async (farmId, token) => {
     try {
         const response = await fetch(`${API_BASE_URL}/farm/${farmId}`, {
@@ -44,12 +46,55 @@ export const fetchFarm = async (farmId, token) => {
     }
 };
 
-export const fetchHerds = async () => {
+// Fetch farm performance metrics
+export const fetchPerformanceMetrics = async (token) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/herds`);
-        return response.data;
+        const response = await axios.get(`${API_BASE_URL}/performance-metrics`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data; // Returns performance metrics
     } catch (error) {
-        console.error("Error fetching herds:", error);
+        console.error("Error fetching performance metrics:", error);
         throw error;
     }
 };
+
+// Fetch all users
+export const fetchUsers = async (token) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/admin/dashboard`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data.users;
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        throw error;
+    }
+};
+
+// Update user role
+export const updateUserRole = async (employee_id, role_name, token) => {
+    try {
+        await axios.put(
+            `${API_BASE_URL}/admin/edit-role/${employee_id}`,
+            { role_name },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+    } catch (error) {
+        console.error("Error updating user role:", error);
+        throw error;
+    }
+};
+
+// Delete user
+export const deleteUser = async (employee_id, token) => {
+    try {
+        await axios.delete(`${API_BASE_URL}/admin/delete-user/${employee_id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        throw error;
+    }
+};
+

@@ -28,17 +28,19 @@ function App() {
                             <Route path="/login" element={<Login />} />
                             <Route path="/register" element={<Register />} />
 
-                            {/* Protected Routes for Logged-in Users */}
+                            {/* Protected Routes */}
                             <Route element={<ProtectedRoutes />}>
-                                <Route path="/dashboard" element={<Dashboard />} />
                                 <Route path="/farm" element={<Farm />} />
                                 <Route path="/herds" element={<Herds />} />
                                 <Route path="/animals" element={<Animals />} />
                                 <Route path="/feeding" element={<Feeding />} />
                                 <Route path="/transactions" element={<Transactions />} />
-
-                                {/* Specific farm route (with farmId parameter) */}
                                 <Route path="/farm/:farmId" element={<Farm />} />
+                            </Route>
+
+                            {/* Admin-Only Routes */}
+                            <Route element={<ProtectedRoutes requiredRole="admin" />}>
+                                <Route path="/dashboard" element={<Dashboard />} />
                             </Route>
                         </Routes>
                     </div>

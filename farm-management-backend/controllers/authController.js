@@ -23,7 +23,6 @@ exports.register = async (req, res) => {
     );
 };
 
-// User login
 exports.login = (req, res) => {
     const { email, password } = req.body;
 
@@ -43,22 +42,25 @@ exports.login = (req, res) => {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
-        // Generate JWT token
+        if (!user.role_name || !user.farm_id) {
+            return res.status(500).json({ error: "User role or farm ID is missing from database." });
+        }
+
         const token = jwt.sign(
             {   
                 employee_id: user.employee_id, 
                 role_name: user.role_name, 
                 farm_id: user.farm_id 
-
             },
             process.env.JWT_SECRET,
             { expiresIn: process.env.TOKEN_EXPIRY }
         );
 
         res.json({ 
-            message: "Login successful",
-            token,
-            farm_id: user.farm_id
+            message: "Login successful", 
+            token, 
+            role_name: user.role_name, 
+            farm_id: user.farm_id 
         });
     });
 };

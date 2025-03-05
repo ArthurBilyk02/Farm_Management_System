@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import jwtDecode from "jwt-decode";
 
 const AuthContext = createContext();
 
@@ -7,20 +8,39 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        console.log("Checking localStorage for token:", token); // ✅ Debugging
+        console.log("AuthContext Loaded - Token:", token);
+
         if (token) {
-            setUser({ token });
+            try {
+                const decoded = jwtDecode(token);
+                console.log("Decoded Token:", decoded); 
+                setUser(decoded);
+            } catch (error) {
+                console.error("Invalid token:", error);
+                localStorage.removeItem("token");
+                setUser(null);
+            }
         }
     }, []);
 
-    const login = (token) => {
-        console.log("Logging in, storing token:", token); // ✅ Debugging
+    const login = (token, role_name, farm_id) => {
+        console.log("Logging in, storing token:", token); 
         localStorage.setItem("token", token);
-        setUser({ token });
+        localStorage.setItem("role_name", role_name);
+        localStorage.setItem("farm_id", farm_id);
+    
+        try {
+            const decoded = jwtDecode(token);
+            console.log("Decoded Token:", decoded);  
+            setUser({ token, role_name, farm_id });
+        } catch (error) {
+            console.error("Error decoding token:", error);
+            setUser(null);
+        }
     };
 
     const logout = () => {
-        console.log("Logging out, removing token"); // ✅ Debugging
+        console.log("Logging out, removing token");
         localStorage.removeItem("token");
         setUser(null);
     };

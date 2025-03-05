@@ -7,24 +7,28 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        const storedFarmId = localStorage.getItem("farm_id");
-        console.log("Loading from storage:", { token, storedFarmId });
+        const role_name = localStorage.getItem("role_name");
+        const farm_id = localStorage.getItem("farm_id");
 
-        if (token && storedFarmId) {
-            setUser({ token, farm_id: Number(storedFarmId) });
+        console.log("AuthContext Loaded - Token:", token, "Role:", role_name, "Farm ID:", farm_id);
+
+        if (token && role_name) {
+            setUser({ token, role_name, farm_id });
         }
     }, []);
 
-    const login = (token, farm_id) => {
-        console.log("Logging in, storing:", { token, farm_id });
+    const login = (token, role_name, farm_id) => {
+        console.log("Logging in - Storing:", token, role_name, farm_id);
         localStorage.setItem("token", token);
+        localStorage.setItem("role_name", role_name);
         localStorage.setItem("farm_id", farm_id);
-        setUser({ token, farm_id: Number(farm_id) });
+        setUser({ token, role_name, farm_id });
     };
 
     const logout = () => {
-        console.log("Logging out, clearing storage");
+        console.log("Logging out - Removing user data");
         localStorage.removeItem("token");
+        localStorage.removeItem("role_name");
         localStorage.removeItem("farm_id");
         setUser(null);
     };

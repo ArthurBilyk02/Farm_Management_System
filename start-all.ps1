@@ -7,3 +7,4 @@ Start-Process powershell -ArgumentList "cd `"$PWD\farm-management-frontend`"; np
 Write-Host "✅ Backend and frontend are starting..."
 
 # .\start-all.ps1
+# taskkill /IM node.exe /F
