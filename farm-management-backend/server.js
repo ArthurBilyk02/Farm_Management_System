@@ -27,7 +27,11 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+	origin: ["http://54.78.191.66:3000", "http://localhost:3000"],
+	credentials: true,
+	methods: ["GET", "POST", "PUT", "DELETE"]
+}));
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);

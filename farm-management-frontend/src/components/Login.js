@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useAuth } from "../context/auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://54.78.191.66:5000/api/v1";
+
+
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -14,7 +17,9 @@ const Login = () => {
         setError("");
 
         try {
-            const response = await fetch("http://localhost:5000/api/v1/auth/login", {
+	    console.log("🔄 Sending request to:", `${API_BASE_URL}/auth/login`);
+
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
