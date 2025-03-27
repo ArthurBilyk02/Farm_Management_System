@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../context/auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://54.78.191.66:5000/api/v1";
+const API_BASE_URL = "http://34.252.162.231/api/v1";
 
 
 const Login = () => {
@@ -18,6 +18,8 @@ const Login = () => {
 
         try {
 	    console.log("🔄 Sending request to:", `${API_BASE_URL}/auth/login`);
+    	    console.log("📧 Email:", email);
+    	    console.log("🔑 Password:", password);
 
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: "POST",
@@ -25,7 +27,11 @@ const Login = () => {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
+	    const text = await response.text();
+	    console.log("📥 Raw Response:", text);
+
+            const data = JSON.parse(text);
+    	    console.log("✅ Parsed Response:", data);
 
             if (!response.ok) {
                 throw new Error(data.error || "Login failed");
@@ -33,7 +39,6 @@ const Login = () => {
 
             console.log("Login Successful - Storing:", data);
 
-            // Store user data in context and local storage
             login(data.token, data.role_name, data.farm_id);
 
             // Redirect based on role

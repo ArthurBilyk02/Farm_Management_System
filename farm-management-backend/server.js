@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+
 const db = require('./db');
 
 const speciesRoutes = require('./routes/v1/speciesRoutes');
@@ -27,11 +29,21 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-	origin: ["http://54.78.191.66:3000", "http://localhost:3000"],
+	origin: ["http://localhost:3000", "http://34.252.162.231", "http://34.252.162.231:80"],
 	credentials: true,
 	methods: ["GET", "POST", "PUT", "DELETE"]
 }));
+
+app.use((req, res, next) => {
+    console.log(`📥 ${req.method} request to ${req.url}`);
+    console.log(`📩 Request Body:`, req.body);
+    console.log(`🌐 Origin: ${req.headers.origin}`);
+    next();
+});
+
+
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
@@ -55,5 +67,5 @@ app.use('/api/v1/alerts', alertSystemRoutes);
 app.use('/api/v1/feeding-type', feedingTypeRoutes);
 
 // Start Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 9000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

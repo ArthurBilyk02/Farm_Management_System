@@ -21,10 +21,15 @@ const Dashboard = () => {
             try {
                 const userData = await fetchUsers(user.token);
                 const metricsData = await fetchPerformanceMetrics(user.token);
+
+		console.log("Users from API:", userData);
+        	console.log("Metrics from API:", metricsData);
+
                 setUsers(userData);
                 setMetrics(metricsData);
                 setLoading(false);
             } catch (err) {
+		console.error("Error fetching dashboard data:", err);
                 setError("Failed to load dashboard data.");
                 setLoading(false);
             }
@@ -61,7 +66,7 @@ const Dashboard = () => {
             <section>
                 <h2>Farm Performance Metrics</h2>
                 <ul>
-                    {metrics.map((metric) => (
+                    {Array.isArray(metrics) && metrics.map((metric) => (
                         <li key={metric.metric_id}>
                             {metric.metric_type}: {metric.value}
                         </li>
@@ -81,7 +86,7 @@ const Dashboard = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
+                        {Array.isArray(users) && users.map((user) => (
                             <tr key={user.employee_id}>
                                 <td>{user.email}</td>
                                 <td>

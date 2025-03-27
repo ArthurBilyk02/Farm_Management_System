@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://54.78.191.66:5000/api/v1";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://34.252.162.231/api/v1";;
 
 console.log("API Base URL:", API_BASE_URL);
 
@@ -67,7 +67,8 @@ export const fetchUsers = async (token) => {
         const response = await axios.get(`${API_BASE_URL}/admin/dashboard`, {
             headers: { Authorization: `Bearer ${token}` },
         });
-        return response.data.users;
+        console.log("fetchUsers raw response:", response.data);
+	return response.data;
     } catch (error) {
         console.error("Error fetching users:", error);
         throw error;
