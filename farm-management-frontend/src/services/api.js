@@ -5,7 +5,7 @@ const API_BASE_URL = "http://localhost:5000/api/v1";
 // Fetch all farms
 export const fetchFarms = async (token) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/farms`, {
+        const response = await fetch(`${API_BASE_URL}/farm`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -55,6 +55,53 @@ export const fetchPerformanceMetrics = async (token) => {
         return response.data; // Returns performance metrics
     } catch (error) {
         console.error("Error fetching performance metrics:", error);
+        throw error;
+    }
+};
+
+// Create a new farm
+export const createFarm = async (farmData, token) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/farm`, farmData, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating farm:", error);
+        throw error;
+    }
+};
+
+// Update an existing farm
+export const updateFarm = async (farmId, farmData, token) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/farm/${farmId}`, farmData, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating farm:", error);
+        throw error;
+    }
+};
+
+// Delete a farm
+export const deleteFarm = async (farmId, token) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/farm/${farmId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting farm:", error);
         throw error;
     }
 };

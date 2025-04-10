@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { fetchFarm } from "../services/api";
 import { useAuth } from "../context/auth/AuthContext";
 
 const Farm = () => {
     const { user } = useAuth(); 
+    const { farmId } = useParams();
     const [farm, setFarm] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        console.log("User in Farm.js:", user);
-        if (!user || !user.farm_id) {
-            setError("No farm ID found");
+        const idToFetch = farmId || user?.farm_id;
+
+        if (!user || !user.token || !idToFetch) {
+            setError("No farm ID or token found.");
             setLoading(false);
             return;
         }
 
-        fetchFarm(user.farm_id, user.token)
+        fetchFarm(idToFetch, user.token)
             .then((data) => {
                 setFarm(data);
                 setLoading(false);
@@ -25,7 +28,7 @@ const Farm = () => {
                 setError(error.message);
                 setLoading(false);
             });
-    }, [user]);
+    }, [user, farmId]);
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
