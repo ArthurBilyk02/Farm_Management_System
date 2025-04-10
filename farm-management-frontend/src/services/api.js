@@ -7,7 +7,7 @@ console.log("API Base URL:", API_BASE_URL);
 // Fetch all farms
 export const fetchFarms = async (token) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/farms`, {
+        const response = await fetch(`${API_BASE_URL}/farm`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -61,14 +61,60 @@ export const fetchPerformanceMetrics = async (token) => {
     }
 };
 
+// Create a new farm
+export const createFarm = async (farmData, token) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/farm`, farmData, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating farm:", error);
+        throw error;
+    }
+};
+
+// Update an existing farm
+export const updateFarm = async (farmId, farmData, token) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/farm/${farmId}`, farmData, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating farm:", error);
+        throw error;
+    }
+};
+
+// Delete a farm
+export const deleteFarm = async (farmId, token) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/farm/${farmId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting farm:", error);
+        throw error;
+    }
+};
+
 // Fetch all users
 export const fetchUsers = async (token) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/admin/dashboard`, {
             headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("fetchUsers raw response:", response.data);
-	return response.data.users;
+        return response.data.users;
     } catch (error) {
         console.error("Error fetching users:", error);
         throw error;
@@ -100,5 +146,4 @@ export const deleteUser = async (employee_id, token) => {
         throw error;
     }
 };
-
 

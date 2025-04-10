@@ -12,6 +12,7 @@ import Register from "./components/Register";
 import Navbar from "./components/layout/Navbar";
 import Sidebar from "./components/layout/Sidebar";
 import ProtectedRoutes from "./components/layout/ProtectedRoutes";
+import FarmList from "./components/FarmList";
 import "./App.css";
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
                             {/* Admin-Only Routes */}
                             <Route element={<ProtectedRoutes requiredRole="admin" />}>
                                 <Route path="/dashboard" element={<Dashboard />} />
+                                <Route path="/farms" element={<FarmList />} />
                             </Route>
                         </Routes>
                     </div>

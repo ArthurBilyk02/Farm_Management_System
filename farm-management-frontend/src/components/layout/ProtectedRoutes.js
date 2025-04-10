@@ -2,18 +2,20 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/auth/AuthContext";
 
 const ProtectedRoutes = ({ requiredRole }) => {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
 
     console.log("ProtectedRoutes - Full User Object:", user);
-    console.log("ProtectedRoutes - requiredRole:", requiredRole); 
+    console.log("ProtectedRoutes - requiredRole:", requiredRole);
+
+    if (loading) return <p>Loading authentication...</p>;
 
     if (!user) {
-        console.log("No user found. Redirecting to login...");
+        console.warn("No user found. Redirecting to login...");
         return <Navigate to="/login" />;
     }
 
-    if (requiredRole && (!user.role_name || user.role_name !== requiredRole)) {
-        console.log(`User role mismatch: Required ${requiredRole}, Found ${user.role_name || "undefined"}. Redirecting to home...`);
+    if (requiredRole && user.role_name !== requiredRole) {
+        console.warn("Access denied. Redirecting...");
         return <Navigate to="/" />;
     }
 
