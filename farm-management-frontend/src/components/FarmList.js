@@ -1,109 +1,130 @@
-import { useEffect, useState } from "react";
-import { fetchFarms, createFarm, updateFarm, deleteFarm } from "../services/api";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/auth/AuthContext";
+import { fetchFarms, createFarm, updateFarm, deleteFarm } from "../services/api";
 import FarmForm from "../components/FarmForm";
+import ConfirmModal from "../components/layout/ConfirmModal";
 
 const FarmList = () => {
     const { user } = useAuth();
     const [farms, setFarms] = useState([]);
-    const [error, setError] = useState(null);
-    const [showForm, setShowForm] = useState(false);
     const [editingFarm, setEditingFarm] = useState(null);
+    const [showForm, setShowForm] = useState(false);
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const [farmToDelete, setFarmToDelete] = useState(null);
+
+    const [showConfirmEdit, setShowConfirmEdit] = useState(false);
+    const [pendingEditData, setPendingEditData] = useState(null);
+
+    const loadFarms = useCallback(async () => {
+        try {
+            const data = await fetchFarms(user.token);
+            setFarms(data);
+        } catch (err) {
+            console.error("Failed to load farms:", err);
+        }
+    }, [user.token]);
 
     useEffect(() => {
-        const getFarms = async () => {
-            try {
-                const data = await fetchFarms(user.token);
-                setFarms(data);
-            } catch (err) {
-                console.error(err);
-                setError("Failed to load farms.");
-            }
-        };
-
-        if (user?.token) getFarms();
-    }, [user]);
+        if (user?.token) loadFarms();
+    }, [user, loadFarms]);
 
     const handleCreate = async (farmData) => {
         try {
-            const newFarm = await createFarm(farmData, user.token);
-            setFarms((prev) => [...prev, { ...farmData, farm_id: newFarm.farm_id }]);
+            await createFarm(farmData, user.token);
+            await loadFarms();
             setShowForm(false);
         } catch (err) {
-            console.error("Create failed:", err);
-            setError("Failed to create farm.");
+            console.error("Error creating farm:", err);
         }
     };
 
-    const handleUpdate = async (farmData) => {
-        try {
-            await updateFarm(editingFarm.farm_id, farmData, user.token);
-            setFarms((prev) =>
-                prev.map((f) =>
-                    f.farm_id === editingFarm.farm_id ? { ...f, ...farmData } : f
-                )
-            );
-            setEditingFarm(null);
-            setShowForm(false);
-        } catch (err) {
-            console.error("Update failed:", err);
-            setError("Failed to update farm.");
-        }
-    };
-
-    const handleDelete = async (farmId) => {
-        try {
-            await deleteFarm(farmId, user.token);
-            setFarms((prev) => prev.filter((f) => f.farm_id !== farmId));
-        } catch (err) {
-            console.error("Delete failed:", err);
-            setError("Failed to delete farm.");
-        }
-    };
-
-    const handleEditClick = (farm) => {
+    const handleEdit = (farm) => {
         setEditingFarm(farm);
         setShowForm(true);
     };
 
-    const handleFormSubmit = (formData) => {
+    const confirmDelete = (farmId) => {
+        setFarmToDelete(farmId);
+        setShowConfirmDelete(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        try {
+            await deleteFarm(farmToDelete, user.token);
+            await loadFarms();
+            setShowConfirmDelete(false);
+            setFarmToDelete(null);
+        } catch (err) {
+            console.error("Error deleting farm:", err);
+        }
+    };
+
+    const handleEditSubmit = (data) => {
         if (editingFarm) {
-            handleUpdate(formData);
+            setPendingEditData({ farmId: editingFarm.farm_id, data });
+            setShowConfirmEdit(true);
         } else {
-            handleCreate(formData);
+            handleCreate(data);
+        }
+    };
+
+    const handleConfirmEdit = async () => {
+        try {
+            const { farmId, data } = pendingEditData;
+            await updateFarm(farmId, data, user.token);
+            await loadFarms();
+            setShowForm(false);
+            setEditingFarm(null);
+            setShowConfirmEdit(false);
+            setPendingEditData(null);
+        } catch (err) {
+            console.error("Failed to update farm:", err);
         }
     };
 
     return (
         <div>
-            <h2>Farms</h2>
-            {error && <p className="error">{error}</p>}
-
-            <button onClick={() => {
-                setEditingFarm(null);
-                setShowForm((prev) => !prev);
-            }}>
-                {showForm ? "Cancel" : "Add Farm"}
+            <h2>Farm List</h2>
+            <button onClick={() => { setEditingFarm(null); setShowForm(true); }}>
+                Add New Farm
             </button>
 
             {showForm && (
                 <FarmForm
+                    onSubmit={handleEditSubmit}
                     farm={editingFarm}
-                    onSubmit={handleFormSubmit}
                     isEditing={!!editingFarm}
                 />
             )}
 
             <ul>
-                {farms.map((farm) => (
+                {farms.map(farm => (
                     <li key={farm.farm_id}>
-                        <strong>{farm.location}</strong> - Owner: {farm.owner}
-                        <br />
-                        <button onClick={() => handleEditClick(farm)}>Edit</button>
-                        <button onClick={() => handleDelete(farm.farm_id)}>Delete</button>
+                        <strong>{farm.location}</strong> — Owner: {farm.owner}
+                        <button onClick={() => confirmDelete(farm.farm_id)}>Delete</button>
+                        <button onClick={() => handleEdit(farm)}>Edit</button>
                     </li>
                 ))}
             </ul>
+
+            {showConfirmDelete && (
+                <ConfirmModal
+                    message="Are you sure you want to delete this farm?"
+                    onConfirm={handleConfirmDelete}
+                    onCancel={() => setShowConfirmDelete(false)}
+                />
+            )}
+
+            {showConfirmEdit && (
+                <ConfirmModal
+                    message="Are you sure you want to update this farm?"
+                    onConfirm={handleConfirmEdit}
+                    onCancel={() => {
+                        setShowConfirmEdit(false);
+                        setPendingEditData(null);
+                    }}
+                />
+            )}
         </div>
     );
 };

@@ -145,3 +145,76 @@ export const deleteUser = async (employee_id, token) => {
     }
 };
 
+//Herd Functions
+
+// Fetch all herds
+export const fetchHerds = async (token) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/herd`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching herds:", error);
+        throw error;
+    }
+};
+
+// Fetch a single herd by ID
+export const fetchHerdById = async (id, token) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/herd/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching herd ${id}:`, error);
+        throw error;
+    }
+};
+
+// Create a new herd
+export const createHerd = async (herdData, token) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/herd`, herdData, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating herd:", error);
+        throw error;
+    }
+};
+
+// Update an existing herd
+export const updateHerd = async (id, herdData, token) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/herd/${id}`, herdData, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating herd ${id}:`, error);
+        throw error;
+    }
+};
+
+// Delete a herd
+export const deleteHerd = async (id, token) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/herd/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error deleting herd ${id}:`, error);
+        throw error;
+    }
+};
+
