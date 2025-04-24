@@ -220,4 +220,72 @@ export const deleteHerd = async (id, token) => {
     }
 };
 
+// Fetch all animals
+export const fetchAnimals = async (token) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/animals`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching animals:", error);
+        throw error;
+    }
+};
+
+// Create a new animal
+export const createAnimal = async (animalData, token) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/animals`, animalData, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating animal:", error);
+        throw error;
+    }
+};
+
+// Update an existing animal
+export const updateAnimal = async (id, animalData, token) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/animals/${id}`, animalData, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating animal:", error);
+        throw error;
+    }
+};
+
+// Delete an animal
+export const deleteAnimal = async (id, token) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/animals/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting animal:", error);
+        throw error;
+    }
+};
+
+export const fetchSpecies = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/species`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching species:", error);
+        throw error;
+    }
+};
+
 

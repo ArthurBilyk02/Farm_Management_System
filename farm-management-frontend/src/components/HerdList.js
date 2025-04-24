@@ -1,103 +1,184 @@
 import { useEffect, useState } from "react";
-import { fetchHerds, deleteHerd } from "../services/api";
+import { fetchHerds, fetchFarms, createHerd, updateHerd, deleteHerd } from "../services/api";
 import { useAuth } from "../context/auth/AuthContext";
 import HerdForm from "./HerdForm";
+import ConfirmModal from "./layout/ConfirmModal";
 
 const HerdList = () => {
-    const { user } = useAuth();
-    const [herds, setHerds] = useState([]);
-    const [selectedHerd, setSelectedHerd] = useState(null);
-    const [error, setError] = useState("");
-    const [showForm, setShowForm] = useState(false);
+  const { user } = useAuth();
+  const [herds, setHerds] = useState([]);
+  const [farms, setFarms] = useState([]);
+  const [selectedHerd, setSelectedHerd] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [herdToDelete, setHerdToDelete] = useState(null);
+  const [confirmEdit, setConfirmEdit] = useState(false);
+  const [pendingEditData, setPendingEditData] = useState(null);
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        const loadHerds = async () => {
-            try {
-                const allHerds = await fetchHerds(user.token);
-                const farmHerds = allHerds.filter((herd) => herd.farm_id === user.farm_id);
-                setHerds(farmHerds);
-            } catch (err) {
-                setError("Failed to load herds");
-                console.error(err);
-            }
-        };
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const herdData = await fetchHerds(user.token);
+        const farmData = await fetchFarms(user.token);
+        setFarms(farmData);
 
-        loadHerds();
-    }, [user]);
+        const filtered = user.role_name === "admin"
+          ? herdData
+          : herdData.filter((h) => h.farm_id === parseInt(user.farm_id));
 
-    const handleEdit = (herd) => {
-        setSelectedHerd(herd);
-        setShowForm(true);
+        setHerds(filtered);
+      } catch (err) {
+        setError("Failed to load herds or farms");
+        console.error(err);
+      }
     };
 
-    const handleDelete = async (herdId) => {
-        if (window.confirm("Are you sure you want to delete this herd?")) {
-            try {
-                await deleteHerd(herdId, user.token);
-                setHerds(herds.filter((h) => h.herd_id !== herdId));
-            } catch (err) {
-                setError("Failed to delete herd");
-            }
-        }
-    };
+    if (user?.token) loadData();
+  }, [user]);
 
-    const handleCreate = () => {
-        setSelectedHerd(null);
-        setShowForm(true);
-    };
+  const handleCreate = () => {
+    setSelectedHerd(null);
+    setShowForm(true);
+  };
 
-    const handleFormSubmit = (newOrUpdatedHerd) => {
+  const handleEdit = (herd) => {
+    setSelectedHerd(herd);
+    setShowForm(true);
+  };
+
+  const handleDelete = (herdId) => {
+    setHerdToDelete(herdId);
+    setShowConfirm(true);
+  };
+
+  const handleFormSubmit = async (herdData) => {
+    if (selectedHerd) {
+      setPendingEditData({ herdId: selectedHerd.herd_id, data: herdData });
+      setConfirmEdit(true);
+    } else {
+      try {
+        await createHerd(herdData, user.token);
+        const refreshed = await fetchHerds(user.token);
+        setHerds(user.role_name === "admin" ? refreshed : refreshed.filter(h => h.farm_id === parseInt(user.farm_id)));
         setShowForm(false);
-        setSelectedHerd(null);
-        window.location.reload();
-    };
+      } catch (err) {
+        console.error("Failed to create herd:", err);
+        setError("Failed to create herd.");
+      }
+    }
+  };
 
-    if (error) return <p className="error">{error}</p>;
+  const handleConfirmEdit = async () => {
+    try {
+      await updateHerd(pendingEditData.herdId, pendingEditData.data, user.token);
+      const refreshed = await fetchHerds(user.token);
+      setHerds(user.role_name === "admin" ? refreshed : refreshed.filter(h => h.farm_id === parseInt(user.farm_id)));
+      setShowForm(false);
+      setSelectedHerd(null);
+    } catch (err) {
+      console.error("Failed to update herd:", err);
+      setError("Failed to update herd.");
+    } finally {
+      setConfirmEdit(false);
+      setPendingEditData(null);
+    }
+  };
 
-    return (
-        <div>
-            <h2>Herds</h2>
+  const confirmDelete = async () => {
+    try {
+      await deleteHerd(herdToDelete, user.token);
+      setHerds((prev) => prev.filter((h) => h.herd_id !== herdToDelete));
+    } catch (err) {
+      setError("Failed to delete herd");
+      console.error(err);
+    } finally {
+      setShowConfirm(false);
+      setHerdToDelete(null);
+    }
+  };
 
-            <button onClick={handleCreate}>Add New Herd</button>
+  if (error) return <p className="error">{error}</p>;
 
-            {showForm && (
-                <HerdForm
-                    herd={selectedHerd}
-                    onSubmit={handleFormSubmit}
-                    token={user.token}
-                    userFarmId={user.farm_id}
-                />
-            )}
+  return (
+    <div>
+      <h2>Herds</h2>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Herd Name</th>
-                        <th>Species ID</th>
-                        <th>Size</th>
-                        <th>Health Status</th>
-                        <th>Description</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {herds.map((herd) => (
-                        <tr key={herd.herd_id}>
-                            <td>{herd.herd_name}</td>
-                            <td>{herd.species_id}</td>
-                            <td>{herd.size}</td>
-                            <td>{herd.health_status}</td>
-                            <td>{herd.description}</td>
-                            <td>
-                                <button onClick={() => handleEdit(herd)}>Edit</button>
-                                <button onClick={() => handleDelete(herd.herd_id)}>Delete</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
+      {(user.role_name === "admin" || user.role_name === "employee") && (
+        <button onClick={handleCreate}>Add New Herd</button>
+      )}
+
+      {showForm && (
+        <HerdForm
+          herd={selectedHerd}
+          onSubmit={handleFormSubmit}
+          isEditing={!!selectedHerd}
+          isAdmin={user.role_name === "admin"}
+          farmIdFromUser={user.farm_id}
+        />
+      )}
+
+      <table>
+        <thead>
+          <tr>
+            <th>Herd Name</th>
+            <th>Species ID</th>
+            <th>Size</th>
+            <th>Health Status</th>
+            <th>Description</th>
+            {user.role_name === "admin" && <th>Farm Location</th>}
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {herds.map((herd) => (
+            <tr key={herd.herd_id}>
+              <td>{herd.herd_name}</td>
+              <td>{herd.species_id}</td>
+              <td>{herd.size}</td>
+              <td>{herd.health_status}</td>
+              <td>{herd.description}</td>
+              {user.role_name === "admin" && (
+                <td>
+                  {farms.find((f) => f.farm_id === herd.farm_id)?.location || "Unknown"}
+                </td>
+              )}
+              <td>
+                {(user.role_name === "admin" || user.role_name === "employee") && (
+                  <>
+                    <button onClick={() => handleEdit(herd)}>Edit</button>
+                    <button onClick={() => handleDelete(herd.herd_id)}>Delete</button>
+                  </>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {showConfirm && (
+        <ConfirmModal
+          message="Are you sure you want to delete this herd?"
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            setShowConfirm(false);
+            setHerdToDelete(null);
+          }}
+        />
+      )}
+
+      {confirmEdit && (
+        <ConfirmModal
+          message="Are you sure you want to update this herd?"
+          onConfirm={handleConfirmEdit}
+          onCancel={() => {
+            setConfirmEdit(false);
+            setPendingEditData(null);
+          }}
+        />
+      )}
+    </div>
+  );
 };
 
 export default HerdList;
