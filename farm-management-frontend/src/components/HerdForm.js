@@ -25,16 +25,19 @@ const HerdForm = ({ onSubmit, herd = {}, isEditing, isAdmin, farmIdFromUser }) =
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit({
+
+        const herdData = {
             herd_name: herdName,
-            farm_id: farmId,
-            species_id: speciesId,
-            size,
-            date_created: dateCreated,
-            schedule_id: scheduleId,
-            health_status: healthStatus,
-            description
-        });
+            farm_id: parseInt(farmId),
+            species_id: parseInt(speciesId),
+            size: parseInt(size) || 0,
+            date_created: dateCreated || null,
+            schedule_id: scheduleId || null,
+            health_status: healthStatus || "",
+            description: description || ""
+        };
+
+        onSubmit(herdData);
     };
 
     return (

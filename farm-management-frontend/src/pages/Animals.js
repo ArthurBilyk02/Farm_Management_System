@@ -1,7 +1,9 @@
+import AnimalList from "../components/AnimalList";
+
 const Animals = () => {
     return (
         <div>
-            <h2>Animals</h2>
+            <AnimalList />
         </div>
     );
 };

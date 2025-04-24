@@ -4,9 +4,27 @@ const db = require('../../db');
 const { verifyToken, requireRole } = require('../../middlewares/authMiddleware');
 
 // Get all animals
-router.get('/', (req, res) => {
-    db.query('SELECT * FROM Animal', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+router.get('/', verifyToken, (req, res) => {
+    const { role_name, farm_id } = req.user;
+
+    let query = `
+  SELECT a.*, s.species_name, f.location AS farm_location
+  FROM Animal a 
+  JOIN Species s ON a.species_id = s.species_id
+  JOIN Farm f ON a.farm_id = f.farm_id
+    `;
+    const params = [];
+
+    if (role_name !== 'admin') {
+        query += ' WHERE a.farm_id = ?';
+        params.push(farm_id);
+    }
+
+    db.query(query, params, (err, results) => {
+        if (err) {
+            console.error("Error fetching animals:", err);
+            return res.status(500).json({ error: "Database error occurred" });
+        }
         res.json(results);
     });
 });
@@ -56,7 +74,7 @@ router.put('/:id', verifyToken, requireRole(['admin', 'employee']), (req, res) =
 });
 
 // Delete an animal
-router.delete('/:id', verifyToken, requireRole(['admin']), (req, res) => {
+router.delete('/:id', verifyToken, requireRole(['admin', 'employee']), (req, res) => {
     const { id } = req.params;
 
     db.query('DELETE FROM Animal WHERE animal_id = ?', [id], (err, result) => {
