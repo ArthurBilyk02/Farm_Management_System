@@ -1,7 +1,11 @@
-import React from "react";
+import FeedingList from "../components/FeedingList";
 
 const Feeding = () => {
-    return <h1>Feeding Page</h1>;
+    return (
+        <div>
+            <FeedingList />
+        </div>
+    );
 };
 
 export default Feeding;

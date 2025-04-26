@@ -71,11 +71,13 @@ CREATE TABLE IF NOT EXISTS Animal (
 CREATE TABLE IF NOT EXISTS Feeding_Schedule (
     schedule_id INT AUTO_INCREMENT PRIMARY KEY,
     herd_id INT NOT NULL,
+    farm_id INT NOT NULL,
     food_type VARCHAR(225),
     feeding_interval VARCHAR(255),
     recommended_food VARCHAR(255),
     health VARCHAR(255),
-    FOREIGN KEY (herd_id) REFERENCES Herd(herd_id) ON DELETE CASCADE
+    FOREIGN KEY (herd_id) REFERENCES Herd(herd_id) ON DELETE CASCADE,
+    FOREIGN KEY (farm_id) REFERENCES Farm(farm_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Supplier (
@@ -192,34 +194,52 @@ CREATE TABLE IF NOT EXISTS Feeding_Type (
 -- Insert Farms
 INSERT INTO Farm (farm_id, location, owner, animal_types) 
 VALUES 
-(1, 'Farm1', 'John Doe', 'Cattle, Poultry'),
-(2, 'Farm2', 'Jane Smith', 'Fish, Shrimp');
+(1, 'Field A', 'Alice', 'Cattle'),
+(2, 'River Site', 'Bob', 'Fish'),
+(3, 'Barnyard', 'Charlie', 'Pigs, Chickens'),
+(4, 'Back Pasture', 'Diana', 'Buffalo');
 
 -- Insert Species
 INSERT INTO Species (species_id, species_name, description) 
 VALUES 
 (1, 'Dairy Cow', 'High-yield dairy cows suitable for milk production.'),
 (2, 'Sheep', 'Sheep bred for wool and meat.'),
-(3, 'Chicken', 'Poultry farming for eggs and meat');
+(3, 'Chicken', 'Poultry farming for eggs and meat'),
+(4, 'Pig', 'Domesticated pigs for meat production'),
+(5, 'Chicken', 'Layers and broilers'),
+(6, 'Other', 'Other');
 
 -- Insert Herds
-INSERT INTO Herd (herd_id, herd_name, farm_id, species_id, size, date_created, schedule_id, health_status, description) 
+INSERT INTO Herd (herd_name, farm_id, species_id, size, date_created, schedule_id, health_status, description) 
 VALUES 
-(1, 'Angus Herd', 1, 1, 50, '2024-01-01', 1, 'Healthy', 'Angus beef cattle group'),
-(2, 'Trout', 2, 2, 100, '2024-02-15', 2, 'Stable', 'School of Trout');
+('Angus Herd', 1, 1, 50, '2024-01-01', 1, 'Healthy', 'Angus beef cattle group'),
+('Trout', 2, 2, 100, '2024-02-15', 2, 'Stable', 'School of Trout'),
+('Dairy Herd Alpha', 1, 1, 25, NOW(), NULL, 'Healthy', 'Dairy cattle group'),
+('Goat Group Bravo', 1, 2, 12, NOW(), NULL, 'Stable', 'Goats for cheese production'),
+('Sheep Flock Charlie', 2, 3, 30, NOW(), NULL, 'Needs Attention', 'Lambs bred for wool'),
+('Beef Herd Delta', 2, 1, 40, NOW(), NULL, 'Healthy', 'Grass-fed beef herd'),
+('Pig Pen Echo', 3, 4, 18, NOW(), NULL, 'Stable', 'Herd of pigs raised for meat'),
+('Chicken Coop Zulu', 3, 5, 60, NOW(), NULL, 'Healthy', 'Egg-laying hens'),
+('Cow Group Omega', 4, 6, 10, NOW(), NULL, 'Critical', 'Cow herd with feeding issues');
 
 -- Insert Animals
 INSERT INTO Animal (animal_id, herd_id, species_id, farm_id, name, dob) 
 VALUES 
-(1, 1, 1, 1, 'Bessie', '2022-06-12'),
-(2, 2, 2, 2, 'Trout', '2023-09-10');
+(3, 1, 1, 1, 'MooMoo', '2022-07-01'),
+(4, 1, 1, 3, 'Daisy', '2021-11-15'),
+(5, 2, 2, 2, 'Splashy', '2023-08-25'),
+(6, 2, 2, 3, 'Ripple', '2023-09-30'),
+(7, 3, 3, 1, 'Wooly', '2022-01-05'),
+(8, 3, 3, 3, 'Fluffy', '2022-03-18'),
+(9, 4, 2, 2, 'Finn', '2023-10-12'),
+(10, 4, 2, 2, 'Bubbles', '2023-07-20');
 
 -- Insert Feeding Schedule
-INSERT INTO Feeding_Schedule (schedule_id, herd_id, food_type, feeding_interval, recommended_food, health) 
+INSERT INTO Feeding_Schedule (schedule_id, herd_id, farm_id, food_type, feeding_interval, recommended_food, health) 
 VALUES 
-(1, 1, 'Hay', 'Every 6 hours', 'Fresh grass and hay', 'Optimal'),
-(2, 2, 'Fish Feed', 'Every 8 hours', 'Fish Feed', 'Good'),
-(3, 2, 'Grains', 'Every 12 hours', 'Balanced grains for poultry', 'Good');
+(1, 1, 1, 'Hay', 'Every 6 hours', 'Fresh grass and hay', 'Optimal'),
+(2, 2, 2, 'Fish Feed', 'Every 8 hours', 'Fish Feed', 'Good'),
+(3, 8, 3, 'Grains', 'Every 12 hours', 'Balanced grains for poultry', 'Good');
 
 INSERT INTO Supplier (supplier_name, contact_info, product_type)
 VALUES 
@@ -260,15 +280,15 @@ VALUES
 (1, 'Dr. Smith', 'Routine Checkup', 'General inspection and deworming'),
 (2, 'Dr. Brown', 'Vaccination', 'Annual shots and health assessment');
 
-INSERT INTO Medical_History (herd_id, visit_id, health_issue_id, treatment, vet_notes, date) 
-VALUES 
-(1, 1, 1, 'Antibiotics', 'Observed slight improvement', '2024-03-16');
-
 INSERT INTO Health_Issues (herd_id, issue_description, severity, resolution_status)
 VALUES 
 (1, 'Foot and Mouth Disease detected', 'Severe', 'Ongoing'),
 (2, 'Mild dehydration observed', 'Mild', 'Resolved'),
 (1, 'Respiratory infection outbreak', 'Moderate', 'Ongoing');
+
+INSERT INTO Medical_History (herd_id, visit_id, health_issue_id, treatment, vet_notes, date) 
+VALUES 
+(1, 1, 1, 'Antibiotics', 'Observed slight improvement', '2024-03-16');
 
 INSERT INTO Environmental_Conditions (farm_id, temperature, humidity, water_quality)
 VALUES 
