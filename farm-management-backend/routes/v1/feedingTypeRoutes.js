@@ -4,16 +4,50 @@ const db = require('../../db');
 const { verifyToken, requireRole } = require('../../middlewares/authMiddleware');
 
 // Get All Feeding Types
-router.get('/', (req, res) => {
-    db.query('SELECT * FROM Feeding_Type', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
+router.get('/', verifyToken, (req, res) => {
+    const farmId = req.user.farm_id;
+    const roleName = req.user.role_name;
+  
+    let query;
+    let params = [];
+  
+    if (roleName === 'admin') {
+      query = `
+        SELECT ft.*, 
+               f.location AS farm_location,
+               s.species_name,
+               sch.food_type AS schedule_food_type,
+               sch.feeding_interval AS schedule_feeding_interval
+        FROM Feeding_Type ft
+        JOIN Feeding_Schedule sch ON ft.schedule_id = sch.schedule_id
+        JOIN Species s ON ft.species_id = s.species_id
+        JOIN Farm f ON sch.farm_id = f.farm_id
+      `;
+    } else {
+      query = `
+        SELECT ft.*,
+               s.species_name,
+               sch.food_type AS schedule_food_type,
+               sch.feeding_interval AS schedule_feeding_interval
+        FROM Feeding_Type ft
+        JOIN Feeding_Schedule sch ON ft.schedule_id = sch.schedule_id
+        JOIN Species s ON ft.species_id = s.species_id
+        JOIN Farm f ON sch.farm_id = f.farm_id
+        WHERE f.farm_id = ?
+      `;
+      params = [farmId];
+    }
+  
+    db.query(query, params, (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results);
     });
 });
 
 // Get a Specific Feeding Type by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', verifyToken, (req, res) => {
     const { id } = req.params;
+
     db.query('SELECT * FROM Feeding_Type WHERE feeding_type_id = ?', [id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(404).json({ message: "Feeding type not found" });

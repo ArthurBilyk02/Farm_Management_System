@@ -288,4 +288,66 @@ export const fetchSpecies = async () => {
     }
 };
 
+// Feeding Types
+
+export const fetchFeedings = async (token) => {
+    const res = await axios.get(`${API_BASE_URL}/feeding-type`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+};
+
+export const createFeeding = async (data, token) => {
+    const res = await axios.post(`${API_BASE_URL}/feeding-type`, data, {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return res.data;
+};
+
+export const updateFeeding = async (id, data, token) => {
+    const res = await axios.put(`${API_BASE_URL}/feeding-type/${id}`, data, {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return res.data;
+};
+
+export const deleteFeeding = async (id, token) => {
+    const res = await axios.delete(`${API_BASE_URL}/feeding-type/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+};
+
+// Feeding Schedules
+
+export const fetchSchedules = async (token) => {
+    const res = await axios.get(`${API_BASE_URL}/feeding-schedule`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+};
+
+export const createSchedule = async (scheduleData, token) => {
+    const res = await axios.post(`${API_BASE_URL}/feeding-schedule`, scheduleData, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  };
+
+  export async function deleteSchedule(scheduleId, token) {
+    const response = await axios.delete(`${API_BASE_URL}/feeding-schedule/${scheduleId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  }
+
 

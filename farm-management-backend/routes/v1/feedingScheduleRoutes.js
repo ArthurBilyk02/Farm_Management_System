@@ -4,16 +4,30 @@ const db = require('../../db');
 const { verifyToken, requireRole } = require('../../middlewares/authMiddleware');
 
 // Get all feeding schedules
-router.get('/', (req, res) => {
-    db.query('SELECT * FROM Feeding_Schedule', (err, results) => {
+router.get('/', verifyToken, (req, res) => {
+    const roleName = req.user.role_name;
+    const farmId = req.user.farm_id;
+
+    let query;
+    let params = [];
+
+    if (roleName === 'admin') {
+        query = 'SELECT * FROM Feeding_Schedule';
+    } else {
+        query = 'SELECT * FROM Feeding_Schedule WHERE farm_id = ?';
+        params = [farmId];
+    }
+
+    db.query(query, params, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });
 });
 
 // Get a single feeding schedule by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', verifyToken, (req, res) => {
     const { id } = req.params;
+
     db.query('SELECT * FROM Feeding_Schedule WHERE schedule_id = ?', [id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(404).json({ message: "Feeding schedule not found" });
@@ -24,20 +38,27 @@ router.get('/:id', (req, res) => {
 // Create a new feeding schedule
 router.post('/', verifyToken, requireRole(['admin', 'employee']), (req, res) => {
     const { herd_id, food_type, feeding_interval, recommended_food, health } = req.body;
+    let farm_id;
 
-    if (!herd_id || !food_type || !feeding_interval) {
-        return res.status(400).json({ error: "herd_id, food_type, and feeding_interval are required" });
+    if (req.user.role_name === 'admin') {
+        farm_id = req.body.farm_id;
+    } else {
+        farm_id = req.user.farm_id;
     }
 
-    db.query('SELECT * FROM Herd WHERE herd_id = ?', [herd_id], (err, herdResults) => {
+    if (!herd_id || !farm_id || !food_type || !feeding_interval) {
+        return res.status(400).json({ error: "herd_id, farm_id, food_type, and feeding_interval are required" });
+    }
+
+    db.query('SELECT * FROM Herd WHERE herd_id = ? AND farm_id = ?', [herd_id, farm_id], (err, herdResults) => {
         if (err) return res.status(500).json({ error: err.message });
         if (herdResults.length === 0) {
-            return res.status(400).json({ error: "Invalid herd_id. It does not exist." });
+            return res.status(400).json({ error: "Invalid herd_id for the selected farm. It does not exist." });
         }
 
         db.query(
-            'INSERT INTO Feeding_Schedule (herd_id, food_type, feeding_interval, recommended_food, health) VALUES (?, ?, ?, ?, ?)',
-            [herd_id, food_type, feeding_interval, recommended_food || null, health || null],
+            'INSERT INTO Feeding_Schedule (herd_id, farm_id, food_type, feeding_interval, recommended_food, health) VALUES (?, ?, ?, ?, ?, ?)',
+            [herd_id, farm_id, food_type, feeding_interval, recommended_food || null, health || null],
             (err, result) => {
                 if (err) return res.status(500).json({ error: err.message });
                 res.json({ message: "Feeding schedule added successfully", schedule_id: result.insertId });
