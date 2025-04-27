@@ -59,10 +59,19 @@ router.put('/:id', verifyToken, requireRole(['admin', 'employee']), (req, res) =
 router.delete('/:id', verifyToken, requireRole(['admin', 'employee']), (req, res) => {
     const { id } = req.params;
 
-    db.query('DELETE FROM Product_Stock WHERE product_id = ?', [id], (err, result) => {
+    db.query('SELECT * FROM Transactions WHERE product_id = ?', [id], (err, transactions) => {
         if (err) return res.status(500).json({ error: err.message });
-        if (result.affectedRows === 0) return res.status(404).json({ message: "Product stock not found" });
-        res.json({ message: "Product stock deleted successfully" });
+
+        if (transactions.length > 0) {
+            return res.status(400).json({ error: "Cannot delete product. It is referenced in transactions." });
+        }
+
+        db.query('DELETE FROM Product_Stock WHERE product_id = ?', [id], (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (result.affectedRows === 0) return res.status(404).json({ message: "Product not found" });
+
+            res.json({ message: "Product deleted successfully" });
+        });
     });
 });
 

@@ -4,7 +4,7 @@ const db = require('../../db');
 const { verifyToken, requireRole } = require('../../middlewares/authMiddleware');
 
 // Get All Transactions
-router.get('/', (req, res) => {
+router.get('/', verifyToken, (req, res) => {
     db.query('SELECT * FROM Transactions', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
 });
 
 // Get a Specific Transaction by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', verifyToken, (req, res) => {
     const { id } = req.params;
     db.query('SELECT * FROM Transactions WHERE transaction_id = ?', [id], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });

@@ -347,3 +347,59 @@ export const createSchedule = async (scheduleData, token) => {
     });
     return response.data;
   }
+
+  // Transactions
+export const fetchTransactions = async (token) => {
+    const response = await axios.get(`${API_BASE_URL}/transactions`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  };
+  
+  export const createTransaction = async (transactionData, token) => {
+    const response = await axios.post(`${API_BASE_URL}/transactions`, transactionData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  };
+  
+  export const updateTransaction = async (transactionId, transactionData, token) => {
+    const response = await axios.put(`${API_BASE_URL}/transactions/${transactionId}`, transactionData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  };
+  
+  export const deleteTransaction = async (transactionId, token) => {
+    const response = await axios.delete(`${API_BASE_URL}/transactions/${transactionId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  };
+
+  // Products
+  export const fetchProducts = async (token) => {
+    const res = await axios.get(`${API_BASE_URL}/product-stock`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  };
+
+  export const createProduct = async (productData, token) => {
+    const res = await axios.post(`${API_BASE_URL}/product-stock`, productData, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  };
+
+  export const deleteProduct = async (productId, token) => {
+    const res = await axios.delete(`${API_BASE_URL}/product-stock/${productId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  };
