@@ -90,8 +90,8 @@ CREATE TABLE IF NOT EXISTS Supplier (
 CREATE TABLE IF NOT EXISTS Product_Stock (
     product_id INT AUTO_INCREMENT PRIMARY KEY,
     food_type VARCHAR(255) NOT NULL,
-    stock_level INT NOT NULL DEFAULT 0,
-    reorder_threshold INT NOT NULL DEFAULT 5,
+    stock_level FLOAT NOT NULL DEFAULT 0,
+    reorder_threshold FLOAT NOT NULL DEFAULT 5,
     supplier_id INT NOT NULL,
     FOREIGN KEY (supplier_id) REFERENCES Supplier(supplier_id) ON DELETE CASCADE
 );
@@ -101,8 +101,8 @@ CREATE TABLE IF NOT EXISTS Transactions (
     transaction_id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
     transaction_type ENUM('Stock_Purchase', 'Stock_Sale', 'Animal_Purchase', 'Animal_Sale') NOT NULL,
-    quantity INT NOT NULL,
-    transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    quantity FLOAT NOT NULL,
+    transaction_date DATE DEFAULT (CURRENT_DATE),
     total_cost FLOAT NOT NULL,
     FOREIGN KEY (product_id) REFERENCES Product_Stock(product_id) ON DELETE CASCADE
 );
