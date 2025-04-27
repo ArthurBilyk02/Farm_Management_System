@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import "./Sidebar.css";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen }) => {
     return (
-        <div className="sidebar">
+        <div className={`sidebar ${isOpen ? "open" : "collapsed"}`}>
             <ul>
                 <li><Link to="/dashboard">Dashboard</Link></li>
                 <li><Link to="/farm">Farm</Link></li>

@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/auth/AuthContext";
 import "./Navbar.css";
 
-const Navbar = () => {
+const Navbar = ({ toggleSidebar }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
@@ -13,7 +13,13 @@ const Navbar = () => {
 
     return (
         <nav className="navbar">
-            <h1>Animal Management</h1>
+            <div className="navbar-left">
+                <h1>Animal Management</h1>
+                <button className="sidebar-toggle" onClick={toggleSidebar}>
+                    ☰
+                </button>
+            </div>
+
             <div className="nav-links">
                 {user ? (
                     <>

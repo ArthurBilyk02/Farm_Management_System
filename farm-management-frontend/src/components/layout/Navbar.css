@@ -27,3 +27,16 @@
 .nav-links button:hover {
     text-decoration: underline;
 }
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+.sidebar-toggle:hover {
+    text-decoration: underline;
+}

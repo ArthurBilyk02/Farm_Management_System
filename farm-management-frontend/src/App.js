@@ -14,15 +14,22 @@ import Sidebar from "./components/layout/Sidebar";
 import ProtectedRoutes from "./components/layout/ProtectedRoutes";
 import FarmList from "./components/FarmList";
 import "./App.css";
+import { useState } from "react";
 
 function App() {
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen);
+    };
+
     return (
         <AuthProvider>
             <Router>
                 <div className="app-container">
-                    <Navbar />
+                    <Navbar toggleSidebar={toggleSidebar} />
                     <div className="main-layout">
-                        <Sidebar />
+                        <Sidebar isOpen={sidebarOpen} />
                         <Routes>
                             {/* Public Routes */}
                             <Route path="/" element={<Home />} />
