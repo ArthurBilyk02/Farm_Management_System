@@ -13,7 +13,8 @@
 }
 
 .nav-links a,
-.nav-links button {
+.nav-links button,
+.nav-links .user-info {
     text-decoration: none;
     color: white;
     font-weight: bold;

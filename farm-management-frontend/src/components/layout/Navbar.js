@@ -21,12 +21,16 @@ const Navbar = ({ toggleSidebar }) => {
             </div>
 
             <div className="nav-links">
+            {user && (
+                <button className="user-info" disabled>
+                    <span className="user-icon">
+                        👤
+                    </span> {user.role_name}
+                </button>
+            )}
                 {user ? (
-                    <>
-                        <Link to="/dashboard">Dashboard</Link>
-                        <Link to="/farm">Farm</Link>
-                        <button onClick={handleLogout}>Logout</button>
-                    </>
+
+    	        <button onClick={handleLogout}>Logout</button>
                 ) : (
                     <Link to="/login">Login</Link>
                 )}
