@@ -4,6 +4,33 @@ import { useAuth } from "../context/auth/AuthContext";
 import FeedingForm from "./FeedingForm";
 import ConfirmModal from "./layout/ConfirmModal";
 
+function downloadCSV(data, filename = "data.csv") {
+    const csvRows = [];
+  
+    const headers = Object.keys(data[0]);
+    csvRows.push(headers.join(","));
+  
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(","));
+    }
+  
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+  
+    const a = document.createElement("a");
+    a.setAttribute("hidden", "");
+    a.setAttribute("href", url);
+    a.setAttribute("download", filename);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }  
+
 const FeedingList = () => {
     const { user } = useAuth();
     const [feedings, setFeedings] = useState([]);
@@ -96,6 +123,7 @@ const FeedingList = () => {
       <div>
         <h2>Feeding</h2>
   
+        <button onClick={() => downloadCSV(feedings, "feeding.csv")}>Download CSV</button>
         {(user.role_name === "admin" || user.role_name === "employee") && (
           <button onClick={handleCreate}>Add Feeding Type</button>
         )}
@@ -110,7 +138,7 @@ const FeedingList = () => {
           />
         )}
   
-        <table>
+        <table className="table-spreadsheet">
             <thead>
                 <tr>
                 <th>Food Type</th>

@@ -4,6 +4,33 @@ import { useAuth } from "../context/auth/AuthContext";
 import AnimalForm from "./AnimalForm";
 import ConfirmModal from "./layout/ConfirmModal";
 
+function downloadCSV(data, filename = "data.csv") {
+  const csvRows = [];
+
+  const headers = Object.keys(data[0]);
+  csvRows.push(headers.join(","));
+
+  for (const row of data) {
+    const values = headers.map(header => {
+      const escaped = ('' + row[header]).replace(/"/g, '\\"');
+      return `"${escaped}"`;
+    });
+    csvRows.push(values.join(","));
+  }
+
+  const csvString = csvRows.join("\n");
+  const blob = new Blob([csvString], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.setAttribute("hidden", "");
+  a.setAttribute("href", url);
+  a.setAttribute("download", filename);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 const AnimalList = () => {
     const { user } = useAuth();
     const [animals, setAnimals] = useState([]);
@@ -118,7 +145,8 @@ const AnimalList = () => {
     return (
       <div>
         <h2>Animals</h2>
-  
+        
+        <button onClick={() => downloadCSV(animals, "animals.csv")}>Download CSV</button>
         {(user.role_name === "admin" || user.role_name === "employee") && (
           <button onClick={handleCreate}>Add New Animal</button>
         )}
@@ -135,7 +163,7 @@ const AnimalList = () => {
           />
         )}
   
-        <table>
+        <table className="table-spreadsheet">
           <thead>
             <tr>
               <th>Name</th>

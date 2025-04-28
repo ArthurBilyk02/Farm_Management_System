@@ -90,3 +90,19 @@
 .sidebar a:hover {
   background-color: #4CAF50;
 }
+
+.table-spreadsheet {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-spreadsheet th,
+.table-spreadsheet td {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.table-spreadsheet th {
+  background-color: #f5f5f5;
+}
