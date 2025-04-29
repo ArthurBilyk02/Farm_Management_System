@@ -112,12 +112,17 @@ const TransactionList = () => {
   if (error) return <p className="error">{error}</p>;
 
   return (
-    <div>
-      <h2>Transactions</h2>
-
-      <button onClick={() => downloadCSV(transactions, "transactions.csv")}>Download CSV</button>
-      <button onClick={handleCreate}>Add Transaction</button>
-
+    <div className="table">
+      <div>
+        <h2>Transactions</h2>
+            {(user.role_name === "admin" || user.role_name === "employee") && (
+              <div className="add-button-container">  
+                <button onClick={handleCreate} className="add-btn">
+                    ➕ Add Transaction
+                </button>
+              </div>
+            )}
+      </div>	
       {showForm && (
         <TransactionForm
           transaction={selectedTransaction}
@@ -127,7 +132,7 @@ const TransactionList = () => {
           reloadProducts={loadProducts}
         />
       )}
-
+      <button onClick={() => downloadCSV(transactions, "transactions.csv")}>Download CSV</button>
       <table className="table-spreadsheet">
         <thead>
           <tr>
@@ -148,8 +153,23 @@ const TransactionList = () => {
               <td>{fixDate(t.transaction_date)}</td>
               <td>{new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(t.total_cost)}</td>
               <td>
-                <button onClick={() => handleEdit(t)}>Edit</button>
-                <button onClick={() => handleDelete(t.transaction_id)}>Delete</button>
+                {(user.role_name === "admin" || user.role_name === "employee") && (
+                  <>
+                    <span onClick={() => handleEdit(t)}
+                      className="edit-emoji"
+                      title="Edit Herd"
+                      >
+                      ✏️
+                    </span>
+                    <span 
+                      onClick={() => handleDelete(t.transaction_id)}
+                      className="delete-emoji"
+                      title="Delete Herd"
+                      >
+                      ❌
+                    </span>
+                  </>
+                )}
               </td>
             </tr>
           ))}

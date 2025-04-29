@@ -3,7 +3,7 @@ import { fetchSpecies, fetchFarms, fetchHerds } from "../services/api";
 import { useAuth } from "../context/auth/AuthContext";
 import "./Form.css";
 
-const AnimalForm = ({ onSubmit, animal = {}, isEditing, isAdmin, farmIdFromUser }) => {
+const AnimalForm = ({ onSubmit, onCancel, animal = {}, isEditing, isAdmin, farmIdFromUser }) => {
     const { user } = useAuth();
     
     const [name, setName] = useState("");
@@ -139,7 +139,12 @@ const AnimalForm = ({ onSubmit, animal = {}, isEditing, isAdmin, farmIdFromUser 
                 />
             </div>
 
-            <button type="submit">{isEditing ? "Update" : "Create"}</button>
+            <div style={{ marginBottom: "10px" }}>  
+                <button type="submit">{isEditing ? "Update" : "Create"}</button>
+                <button type="button" onClick={onCancel} style={{ marginLeft: "10px" }}>
+                    Cancel
+                </button>
+            </div>
         </form>
     );
 };

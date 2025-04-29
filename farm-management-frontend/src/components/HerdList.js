@@ -128,6 +128,7 @@ const HerdList = () => {
           isEditing={!!selectedHerd}
           isAdmin={user.role_name === "admin"}
           farmIdFromUser={user.farm_id}
+          onCancel={() => setShowForm(false)}
         />
       )}
       <button onClick={() => downloadCSV(herds, "herds.csv")}>Download CSV</button>

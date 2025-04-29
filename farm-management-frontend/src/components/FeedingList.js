@@ -3,33 +3,8 @@ import { createFeeding, updateFeeding, fetchFeedings, deleteFeeding } from "../s
 import { useAuth } from "../context/auth/AuthContext";
 import FeedingForm from "./FeedingForm";
 import ConfirmModal from "./layout/ConfirmModal";
-
-function downloadCSV(data, filename = "data.csv") {
-    const csvRows = [];
-  
-    const headers = Object.keys(data[0]);
-    csvRows.push(headers.join(","));
-  
-    for (const row of data) {
-      const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
-        return `"${escaped}"`;
-      });
-      csvRows.push(values.join(","));
-    }
-  
-    const csvString = csvRows.join("\n");
-    const blob = new Blob([csvString], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-  
-    const a = document.createElement("a");
-    a.setAttribute("hidden", "");
-    a.setAttribute("href", url);
-    a.setAttribute("download", filename);
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }  
+import "../App.css";
+import { downloadCSV } from "../utils/utils";
 
 const FeedingList = () => {
     const { user } = useAuth();
@@ -120,14 +95,18 @@ const FeedingList = () => {
     if (error) return <p className="error">{error}</p>;
   
     return (
-      <div>
-        <h2>Feeding</h2>
-  
-        <button onClick={() => downloadCSV(feedings, "feeding.csv")}>Download CSV</button>
-        {(user.role_name === "admin" || user.role_name === "employee") && (
-          <button onClick={handleCreate}>Add Feeding Type</button>
-        )}
-  
+      <div className="table">
+        <div>	
+            <h2>Feeding</h2>
+            {(user.role_name === "admin" || user.role_name === "employee") && (
+              <div className="add-button-container">  
+                <button onClick={handleCreate} className="add-btn">
+                    ➕ Add New Herd
+                </button>
+              </div>
+            )}
+        </div>	
+
         {showForm && (
           <FeedingForm
             feeding={selectedFeeding}
@@ -135,9 +114,11 @@ const FeedingList = () => {
             isEditing={!!selectedFeeding}
             token={user.token}
             isAdmin={user.role_name === "admin"}
+            onCancel={() => setShowForm(false)}
           />
         )}
-  
+
+        <button onClick={() => downloadCSV(feedings, "feeding.csv")}>Download CSV</button>
         <table className="table-spreadsheet">
             <thead>
                 <tr>
@@ -162,12 +143,23 @@ const FeedingList = () => {
                     <td></td>
                     )}
                     <td>
-                    {(user.role_name === "admin" || user.role_name === "employee") && (
+                      {(user.role_name === "admin" || user.role_name === "employee") && (
                         <>
-                        <button onClick={() => handleEdit(f)}>Edit</button>
-                        <button onClick={() => handleDelete(f.feeding_type_id)}>Delete</button>
+                          <span onClick={() => handleEdit(f)}
+                            className="edit-emoji"
+                            title="Edit Herd"
+                            >
+                            ✏️
+                          </span>
+                          <span 
+                            onClick={() => handleDelete(f.feeding_type_id)}
+                            className="delete-emoji"
+                            title="Delete Herd"
+                            >
+                            ❌
+                          </span>
                         </>
-                    )}
+                      )}
                     </td>
                 </tr>
                 ))}

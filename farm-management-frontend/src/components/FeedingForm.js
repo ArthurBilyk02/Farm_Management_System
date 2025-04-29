@@ -4,8 +4,9 @@ import { useAuth } from "../context/auth/AuthContext";
 import ScheduleForm from "./ScheduleForm";
 import Modal from "./layout/Modal";
 import ConfirmModal from "./layout/ConfirmModal";
+import "./Form.css";
 
-const FeedingForm = ({ onSubmit, feeding = {}, isEditing }) => {
+const FeedingForm = ({ onSubmit, onCancel, feeding = {}, isEditing }) => { // Added onCancel prop
   const { user } = useAuth();
   const [foodType, setFoodType] = useState("");
   const [scheduleId, setScheduleId] = useState("");
@@ -84,7 +85,7 @@ const FeedingForm = ({ onSubmit, feeding = {}, isEditing }) => {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         <h3>{isEditing ? "Edit Feeding Type" : "Add New Feeding Type"}</h3>
 
         <div>
@@ -158,10 +159,14 @@ const FeedingForm = ({ onSubmit, feeding = {}, isEditing }) => {
           />
         </div>
 
-        <button type="submit">{isEditing ? "Update" : "Create"}</button>
+        <div style={{ marginTop: "10px" }}>
+          <button type="submit">{isEditing ? "Update" : "Create"}</button>
+          <button type="button" onClick={onCancel} style={{ marginLeft: "10px" }}>
+            Cancel
+          </button>
+        </div>
       </form>
 
-      {/* Schedule Modal */}
       {showScheduleForm && (
         <Modal isOpen={showScheduleForm} onClose={() => setShowScheduleForm(false)}>
           <ScheduleForm
@@ -171,7 +176,6 @@ const FeedingForm = ({ onSubmit, feeding = {}, isEditing }) => {
         </Modal>
       )}
 
-      {/* Confirm Delete Schedule Modal */}
       {showConfirmDeleteSchedule && (
         <ConfirmModal
           message="Are you sure you want to delete this schedule?"

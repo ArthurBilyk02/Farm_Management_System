@@ -5,6 +5,7 @@ import { createProduct, deleteProduct } from "../services/api";
 import ConfirmModal from "./layout/ConfirmModal";
 import { useAuth } from "../context/auth/AuthContext";
 import { formatWeight } from "../utils/utils";
+import "./Form.css";
 
 const TransactionForm = ({ transaction = {}, products = [], onSubmit, onCancel, reloadProducts }) => {
   const safeTransaction = useMemo(() => transaction || {}, [transaction]);
@@ -74,7 +75,7 @@ const TransactionForm = ({ transaction = {}, products = [], onSubmit, onCancel, 
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         <h3>{safeTransaction.transaction_id ? "Edit Transaction" : "Add Transaction"}</h3>
 
         <div>
