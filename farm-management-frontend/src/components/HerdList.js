@@ -1,35 +1,10 @@
 import { useEffect, useState } from "react";
-import { fetchHerds, fetchFarms, createHerd, updateHerd, deleteHerd } from "../services/api";
+import { fetchHerds, fetchFarms, createHerd, updateHerd, deleteHerd, fetchSpecies } from "../services/api";
 import { useAuth } from "../context/auth/AuthContext";
 import HerdForm from "./HerdForm";
 import ConfirmModal from "./layout/ConfirmModal";
-
-function downloadCSV(data, filename = "data.csv") {
-  const csvRows = [];
-
-  const headers = Object.keys(data[0]);
-  csvRows.push(headers.join(","));
-
-  for (const row of data) {
-    const values = headers.map(header => {
-      const escaped = ('' + row[header]).replace(/"/g, '\\"');
-      return `"${escaped}"`;
-    });
-    csvRows.push(values.join(","));
-  }
-
-  const csvString = csvRows.join("\n");
-  const blob = new Blob([csvString], { type: "text/csv" });
-  const url = window.URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.setAttribute("hidden", "");
-  a.setAttribute("href", url);
-  a.setAttribute("download", filename);
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
+import { downloadCSV } from "../utils/utils";
+import "../App.css";
 
 const HerdList = () => {
   const { user } = useAuth();
@@ -42,13 +17,16 @@ const HerdList = () => {
   const [confirmEdit, setConfirmEdit] = useState(false);
   const [pendingEditData, setPendingEditData] = useState(null);
   const [error, setError] = useState("");
+  const [speciesOptions, setSpeciesOptions] = useState([]);
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const herdData = await fetchHerds(user.token);
         const farmData = await fetchFarms(user.token);
+        const speciesData = await fetchSpecies(user.token);
         setFarms(farmData);
+        setSpeciesOptions(speciesData);
 
         const filtered = user.role_name === "admin"
           ? herdData
@@ -125,14 +103,22 @@ const HerdList = () => {
     }
   };
 
+  const getSpeciesName = (id) => {
+    const match = speciesOptions.find((s) => s.species_id === id);
+    return match ? match.species_name : "Unknown";
+  };
+
   if (error) return <p className="error">{error}</p>;
 
   return (
-    <div>
+    <div className="table">	
       <h2>Herds</h2>
-      <button onClick={() => downloadCSV(herds, "herds.csv")}>Download CSV</button>
       {(user.role_name === "admin" || user.role_name === "employee") && (
-        <button onClick={handleCreate}>Add New Herd</button>
+        <div className="add-button-container">  
+          <button onClick={handleCreate} className="add-btn">
+              ➕ Add New Herd
+          </button>
+        </div>
       )}
 
       {showForm && (
@@ -144,12 +130,12 @@ const HerdList = () => {
           farmIdFromUser={user.farm_id}
         />
       )}
-
+      <button onClick={() => downloadCSV(herds, "herds.csv")}>Download CSV</button>
       <table className="table-spreadsheet">
         <thead>
           <tr>
             <th>Herd Name</th>
-            <th>Species ID</th>
+            <th>Species</th>
             <th>Size</th>
             <th>Health Status</th>
             <th>Description</th>
@@ -161,7 +147,7 @@ const HerdList = () => {
           {herds.map((herd) => (
             <tr key={herd.herd_id}>
               <td>{herd.herd_name}</td>
-              <td>{herd.species_id}</td>
+              <td>{getSpeciesName(herd.species_id)}</td>
               <td>{herd.size}</td>
               <td>{herd.health_status}</td>
               <td>{herd.description}</td>
@@ -173,8 +159,19 @@ const HerdList = () => {
               <td>
                 {(user.role_name === "admin" || user.role_name === "employee") && (
                   <>
-                    <button onClick={() => handleEdit(herd)}>Edit</button>
-                    <button onClick={() => handleDelete(herd.herd_id)}>Delete</button>
+                    <span onClick={() => handleEdit(herd)}
+                      className="edit-emoji"
+                      title="Edit Herd"
+                      >
+                      ✏️
+                    </span>
+                    <span 
+                      onClick={() => handleDelete(herd.herd_id)}
+                      className="delete-emoji"
+                      title="Delete User"
+                      >
+                      ❌
+                    </span>
                   </>
                 )}
               </td>

@@ -100,6 +100,12 @@ html, body, #root {
   background-color: #4CAF50;
 }
 
+.table {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 .table-spreadsheet {
   width: 100%;
   border-collapse: collapse;
@@ -109,7 +115,6 @@ html, body, #root {
 .table-spreadsheet td {
   border: 1px solid #ccc;
   padding: 8px 12px;
-  text-align: left;
 }
 
 .table-spreadsheet th {
@@ -127,4 +132,18 @@ html, body, #root {
 
 .delete-emoji:hover {
 transform: scale(1.2) rotate(-10deg);
+}
+
+.edit-emoji {
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  display: flex;
+  justify-content: center;
+  line-height: 1;
+  margin: 0 auto;
+  margin-bottom: 8px;
+}
+
+.edit-emoji:hover {
+  transform: scale(1.2) rotate(10deg);
 }

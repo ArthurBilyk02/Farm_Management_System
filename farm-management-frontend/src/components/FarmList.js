@@ -3,7 +3,7 @@ import { useAuth } from "../context/auth/AuthContext";
 import { fetchFarms, createFarm, updateFarm, deleteFarm } from "../services/api";
 import FarmForm from "../components/FarmForm";
 import ConfirmModal from "../components/layout/ConfirmModal";
-import "./FarmList.css"; // new css
+import "./FarmList.css";
 
 const FarmList = () => {
     const { user } = useAuth();
@@ -85,10 +85,10 @@ const FarmList = () => {
     return (
         <div className="farmlist-container">
             <h2>Farm List</h2>
-                <div className="add-farm-button-container">
+                <div className="add-button-container">
                     <button 
                         onClick={() => { setEditingFarm(null); setShowForm(true); }}
-                        className="add-farm-btn"
+                        className="add-btn"
                     >
                         ➕ Add New Farm
                     </button>
