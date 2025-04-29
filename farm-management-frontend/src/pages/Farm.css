@@ -1,19 +1,27 @@
-.farms-container {
+.farm-page {
+    max-width: 800px;
+    margin: 0 auto;
     padding: 20px;
-}
-
-.farms-container h2 {
-    color: #4CAF50;
-}
-
-.farms-container ul {
-    list-style: none;
+    text-align: center;
+  }
+  
+  .farm-overview {
+    margin-top: 20px;
+  }
+  
+  .farm-herds {
+    margin-top: 20px;
+  }
+  
+  .farm-herds ul {
+    list-style-type: none;
     padding: 0;
-}
-
-.farms-container li {
-    background: #f3f3f3;
-    margin: 10px 0;
+  }
+  
+  .farm-herds li {
+    background: #f5f5f5;
+    margin: 8px 0;
     padding: 10px;
     border-radius: 5px;
-}
+  }
+  
