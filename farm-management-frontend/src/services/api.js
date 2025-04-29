@@ -145,6 +145,14 @@ export const deleteUser = async (employee_id, token) => {
     }
 };
 
+// Register User
+export async function registerUser(userData, token) {
+    const response = await axios.post(`${API_BASE_URL}/auth/register`, userData, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  }
+
 //Herd Functions
 
 // Fetch all herds

@@ -37,16 +37,25 @@
   }
 }
 
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .main-layout {
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .sidebar {
@@ -105,4 +114,17 @@
 
 .table-spreadsheet th {
   background-color: #f5f5f5;
+}
+
+.delete-emoji {
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  display: flex;
+  justify-content: center;
+  line-height: 1;
+  margin: 0 auto;
+}
+
+.delete-emoji:hover {
+transform: scale(1.2) rotate(-10deg);
 }

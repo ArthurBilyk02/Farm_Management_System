@@ -4,14 +4,7 @@ import ProductForm from "./ProductForm";
 import { createProduct, deleteProduct } from "../services/api";
 import ConfirmModal from "./layout/ConfirmModal";
 import { useAuth } from "../context/auth/AuthContext";
-
-function formatWeight(quantity) {
-    if (quantity >= 1) {
-      return `${parseFloat(quantity.toFixed(2))} kg`;
-    } else {
-      return `${Math.round(quantity * 1000)} g`;
-    }
-  }
+import { formatWeight } from "../utils/utils";
 
 const TransactionForm = ({ transaction = {}, products = [], onSubmit, onCancel, reloadProducts }) => {
   const safeTransaction = useMemo(() => transaction || {}, [transaction]);

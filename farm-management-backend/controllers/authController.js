@@ -11,16 +11,25 @@ exports.register = async (req, res) => {
         return res.status(400).json({ error: "Email, password, and role name are required" });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-    db.query('INSERT INTO Users (email, password, role_name, farm_id) VALUES (?, ?, ?, ?)', 
-        [email, hashedPassword, role_name, farm_id || null], 
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "User registered successfully", employee_id: result.insertId });
-        }
-    );
+        db.query('INSERT INTO Users (email, password, role_name, farm_id) VALUES (?, ?, ?, ?)', 
+            [email, hashedPassword, role_name, farm_id || null], 
+            (err, result) => {
+                if (err) {
+                    console.error("Registration Error:", err);
+                    if (err.code === 'ER_DUP_ENTRY') {
+                        return res.status(409).json({ error: "A user with this email already exists." });
+                    }
+                    return res.status(500).json({ error: err.message });
+                }
+                res.json({ message: "User registered successfully", employee_id: result.insertId });
+            }
+        );
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
 exports.login = (req, res) => {
