@@ -168,7 +168,7 @@ const HerdList = () => {
                     <span 
                       onClick={() => handleDelete(herd.herd_id)}
                       className="delete-emoji"
-                      title="Delete User"
+                      title="Delete Herd"
                       >
                       ❌
                     </span>
