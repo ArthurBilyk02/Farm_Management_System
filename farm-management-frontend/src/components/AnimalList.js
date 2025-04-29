@@ -1,40 +1,16 @@
 import { useEffect, useState } from "react";
-import { fetchAnimals, deleteAnimal, updateAnimal, createAnimal, fetchFarms } from "../services/api";
+import { fetchAnimals, deleteAnimal, updateAnimal, createAnimal, fetchFarms, fetchHerds } from "../services/api";
 import { useAuth } from "../context/auth/AuthContext";
 import AnimalForm from "./AnimalForm";
 import ConfirmModal from "./layout/ConfirmModal";
-
-function downloadCSV(data, filename = "data.csv") {
-  const csvRows = [];
-
-  const headers = Object.keys(data[0]);
-  csvRows.push(headers.join(","));
-
-  for (const row of data) {
-    const values = headers.map(header => {
-      const escaped = ('' + row[header]).replace(/"/g, '\\"');
-      return `"${escaped}"`;
-    });
-    csvRows.push(values.join(","));
-  }
-
-  const csvString = csvRows.join("\n");
-  const blob = new Blob([csvString], { type: "text/csv" });
-  const url = window.URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.setAttribute("hidden", "");
-  a.setAttribute("href", url);
-  a.setAttribute("download", filename);
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
+import "../App.css";
+import { downloadCSV } from "../utils/utils";
 
 const AnimalList = () => {
     const { user } = useAuth();
     const [animals, setAnimals] = useState([]);
     const [farms, setFarms] = useState([]);
+    const [herds, setHerds] = useState([]);
     const [selectedAnimal, setSelectedAnimal] = useState(null);
     const [error, setError] = useState("");
     const [showForm, setShowForm] = useState(false);
@@ -48,8 +24,10 @@ const AnimalList = () => {
         try {
           const allAnimals = await fetchAnimals(user.token);
           const allFarms = await fetchFarms(user.token);
+          const allHerds = await fetchHerds(user.token);
   
           setFarms(allFarms);
+          setHerds(allHerds);
   
           if (user.role_name === "admin") {
             setAnimals(allAnimals);
@@ -139,16 +117,23 @@ const AnimalList = () => {
         console.error("Failed to refresh animal list:", err);
       }
     };
+
+    const getHerdName = (herdId) => {
+      const herd = herds.find((h) => h.herd_id === herdId);
+      return herd ? herd.herd_name : "Unknown";
+  };
   
     if (error) return <p className="error">{error}</p>;
   
     return (
-      <div>
+      <div className="table">
         <h2>Animals</h2>
-        
-        <button onClick={() => downloadCSV(animals, "animals.csv")}>Download CSV</button>
         {(user.role_name === "admin" || user.role_name === "employee") && (
-          <button onClick={handleCreate}>Add New Animal</button>
+          <div className="add-button-container">
+          <button onClick={handleCreate} className="add-btn">
+            ➕ Add New Animal
+          </button>
+      </div>
         )}
   
         {showForm && (
@@ -162,13 +147,13 @@ const AnimalList = () => {
             farmIdFromUser={user.farm_id}
           />
         )}
-  
+        <button onClick={() => downloadCSV(animals, "animals.csv")}>Download CSV</button>
         <table className="table-spreadsheet">
           <thead>
             <tr>
               <th>Name</th>
               <th>Species</th>
-              <th>Herd ID</th>
+              <th>Herd</th>
               <th>Date of Birth</th>
               {user.role_name === "admin" && <th>Farm Location</th>}
               <th>Actions</th>
@@ -179,7 +164,7 @@ const AnimalList = () => {
               <tr key={animal.animal_id}>
                 <td>{animal.name}</td>
                 <td>{animal.species_name}</td>
-                <td>{animal.herd_id}</td>
+                <td>{getHerdName(animal.herd_id)}</td>
                 <td>{animal.dob ? animal.dob.split("T")[0] : "—"}</td>
                 {user.role_name === "admin" && (
                   <td>
@@ -190,20 +175,28 @@ const AnimalList = () => {
                   </td>
                 )}
                 <td>
-                  {(user.role_name === "admin" || user.role_name === "employee") && (
-                    <>
-                      <button onClick={() => handleEdit(animal)}>Edit</button>
-                      <button
-                        onClick={() => {
-                          setAnimalToDelete(animal.animal_id);
-                          setShowConfirm(true);
-                        }}
+                {(user.role_name === "admin" || user.role_name === "employee") && (
+                  <>
+                    <span onClick={() => handleEdit(animal)}
+                      className="edit-emoji"
+                      title="Edit Animal"
                       >
-                        Delete
-                      </button>
-                    </>
-                  )}
-                </td>
+                      ✏️
+                    </span>
+                    <span 
+                      onClick={() => {
+                        setAnimalToDelete(animal.animal_id);
+                        setShowConfirm(true);
+                      }}
+                      className="delete-emoji"
+                      title="Delete Animal"
+                      >
+                      ❌
+                    </span>
+                  </>
+                )}
+              </td>
+
               </tr>
             ))}
           </tbody>
