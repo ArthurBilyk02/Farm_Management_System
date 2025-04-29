@@ -23,7 +23,7 @@ const FarmForm = ({ onSubmit, farm, isEditing }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="farm-form" onSubmit={handleSubmit}>
             <h3>{isEditing ? "Edit Farm" : "Add New Farm"}</h3>
 
             <div>

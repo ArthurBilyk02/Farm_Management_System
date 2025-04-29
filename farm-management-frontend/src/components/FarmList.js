@@ -3,6 +3,7 @@ import { useAuth } from "../context/auth/AuthContext";
 import { fetchFarms, createFarm, updateFarm, deleteFarm } from "../services/api";
 import FarmForm from "../components/FarmForm";
 import ConfirmModal from "../components/layout/ConfirmModal";
+import "./FarmList.css"; // new css
 
 const FarmList = () => {
     const { user } = useAuth();
@@ -11,7 +12,6 @@ const FarmList = () => {
     const [showForm, setShowForm] = useState(false);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
     const [farmToDelete, setFarmToDelete] = useState(null);
-
     const [showConfirmEdit, setShowConfirmEdit] = useState(false);
     const [pendingEditData, setPendingEditData] = useState(null);
 
@@ -83,11 +83,16 @@ const FarmList = () => {
     };
 
     return (
-        <div>
+        <div className="farmlist-container">
             <h2>Farm List</h2>
-            <button onClick={() => { setEditingFarm(null); setShowForm(true); }}>
-                Add New Farm
-            </button>
+                <div className="add-farm-button-container">
+                    <button 
+                        onClick={() => { setEditingFarm(null); setShowForm(true); }}
+                        className="add-farm-btn"
+                    >
+                        ➕ Add New Farm
+                    </button>
+                </div>
 
             {showForm && (
                 <FarmForm
@@ -97,15 +102,20 @@ const FarmList = () => {
                 />
             )}
 
-            <ul>
+            <div className="farm-cards-grid">
                 {farms.map(farm => (
-                    <li key={farm.farm_id}>
-                        <strong>{farm.location}</strong> — Owner: {farm.owner}
-                        <button onClick={() => confirmDelete(farm.farm_id)}>Delete</button>
-                        <button onClick={() => handleEdit(farm)}>Edit</button>
-                    </li>
+                    <div key={farm.farm_id} className="farm-card">
+                        <h3>{farm.location}</h3>
+                        <p><span className="icon"></span> <strong>Owner:</strong> {farm.owner}</p>
+                        <p><span className="icon"></span> <strong>Animal Types:</strong> {farm.animal_types}</p>
+                        
+                        <div className="card-actions">
+                            <span className="action-icon edit" onClick={() => handleEdit(farm)}>✏️</span>
+                            <span className="action-icon delete" onClick={() => confirmDelete(farm.farm_id)}>❌</span>
+                        </div>
+                    </div>
                 ))}
-            </ul>
+            </div>
 
             {showConfirmDelete && (
                 <ConfirmModal
