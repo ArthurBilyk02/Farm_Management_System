@@ -3,7 +3,7 @@ import { fetchFarms, fetchSpecies, fetchSchedules } from "../services/api";
 import { useAuth } from "../context/auth/AuthContext";
 import "./Form.css"
 
-const HerdForm = ({ onSubmit, herd = {}, isEditing, isAdmin, farmIdFromUser }) => {
+const HerdForm = ({ onSubmit, onCancel, herd = {}, isEditing, isAdmin, farmIdFromUser }) => {
     const { user } = useAuth();
 
     const [herdName, setHerdName] = useState("");
@@ -175,8 +175,12 @@ const HerdForm = ({ onSubmit, herd = {}, isEditing, isAdmin, farmIdFromUser }) =
                     onChange={(e) => setDescription(e.target.value)}
                 />
             </div>
-
-            <button type="submit">{isEditing ? "Update" : "Create"}</button>
+            <div style={{ marginTop: "10px" }}>
+                <button type="submit">{isEditing ? "Update" : "Create"}</button>
+                <button type="button" onClick={onCancel} style={{ marginLeft: "10px" }}>
+                        Cancel
+                </button>
+            </div>
         </form>
     );
 };

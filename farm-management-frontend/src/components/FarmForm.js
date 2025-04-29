@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Form.css";
 
-const FarmForm = ({ onSubmit, farm, isEditing }) => {
+const FarmForm = ({ onSubmit, onCancel, farm, isEditing }) => {
     const [location, setLocation] = useState("");
     const [owner, setOwner] = useState("");
     const [animalTypes, setAnimalTypes] = useState("");
@@ -55,8 +55,12 @@ const FarmForm = ({ onSubmit, farm, isEditing }) => {
                     onChange={(e) => setAnimalTypes(e.target.value)}
                 />
             </div>
-
-            <button type="submit">{isEditing ? "Update" : "Create"}</button>
+            <div style={{ marginBottom: "10px" }}>
+                <button type="submit">{isEditing ? "Update" : "Create"}</button>
+                <button type="button" onClick={onCancel} style={{ marginLeft: "10px" }}>
+                    Cancel
+                </button>
+            </div>
         </form>
     );
 };

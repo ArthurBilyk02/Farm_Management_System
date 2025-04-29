@@ -99,6 +99,7 @@ const FarmList = () => {
                     onSubmit={handleEditSubmit}
                     farm={editingFarm}
                     isEditing={!!editingFarm}
+                    onCancel={() => setShowForm(false)}
                 />
             )}
 
