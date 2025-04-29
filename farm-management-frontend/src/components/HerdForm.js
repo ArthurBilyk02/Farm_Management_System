@@ -1,6 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { fetchFarms, fetchSpecies, fetchSchedules } from "../services/api"; 
+import { useAuth } from "../context/auth/AuthContext";
+import "./Form.css"
 
 const HerdForm = ({ onSubmit, herd = {}, isEditing, isAdmin, farmIdFromUser }) => {
+    const { user } = useAuth();
+
     const [herdName, setHerdName] = useState("");
     const [farmId, setFarmId] = useState("");
     const [speciesId, setSpeciesId] = useState("");
@@ -9,6 +14,10 @@ const HerdForm = ({ onSubmit, herd = {}, isEditing, isAdmin, farmIdFromUser }) =
     const [scheduleId, setScheduleId] = useState("");
     const [healthStatus, setHealthStatus] = useState("");
     const [description, setDescription] = useState("");
+
+    const [farmOptions, setFarmOptions] = useState([]);
+    const [speciesOptions, setSpeciesOptions] = useState([]);
+    const [scheduleOptions, setScheduleOptions] = useState([]);
 
     useEffect(() => {
         if (herd) {
@@ -23,6 +32,26 @@ const HerdForm = ({ onSubmit, herd = {}, isEditing, isAdmin, farmIdFromUser }) =
         }
     }, [herd, isAdmin, farmIdFromUser]);
 
+    const loadOptions = useCallback(async () => {
+        try {
+            if (!user?.token) return;
+
+            const farms = await fetchFarms(user.token);
+            const species = await fetchSpecies(user.token);
+            const schedules = await fetchSchedules(user.token);
+
+            setFarmOptions(farms);
+            setSpeciesOptions(species);
+            setScheduleOptions(schedules);
+        } catch (err) {
+            console.error("Error loading dropdown options:", err);
+        }
+    }, [user?.token]);
+
+    useEffect(() => {
+        if (user?.token) loadOptions();
+    }, [user, loadOptions]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -34,14 +63,14 @@ const HerdForm = ({ onSubmit, herd = {}, isEditing, isAdmin, farmIdFromUser }) =
             date_created: dateCreated || null,
             schedule_id: scheduleId || null,
             health_status: healthStatus || "",
-            description: description || ""
+            description: description || "",
         };
 
         onSubmit(herdData);
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form className="form" onSubmit={handleSubmit}>
             <h3>{isEditing ? "Edit Herd" : "Add New Herd"}</h3>
 
             <div>
@@ -54,25 +83,44 @@ const HerdForm = ({ onSubmit, herd = {}, isEditing, isAdmin, farmIdFromUser }) =
                 />
             </div>
 
-            <div>
-                <label>Farm ID:</label>
-                <input
-                    type="text"
-                    value={farmId}
-                    onChange={(e) => setFarmId(e.target.value)}
-                    required
-                    disabled={!isAdmin}
-                />
-            </div>
+            {isAdmin && (
+                <div>
+                    <label>Farm Location:</label>
+                    <select
+                        value={farmId}
+                        onChange={(e) => setFarmId(e.target.value)}
+                        required
+                        disabled={farmOptions.length === 0}
+                    >
+                        <option value="">
+                            {farmOptions.length === 0 ? "No farms available" : "-- Select Farm --"}
+                        </option>
+                        {farmOptions.map((f) => (
+                            <option key={f.farm_id} value={f.farm_id}>
+                                {f.location}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
             <div>
-                <label>Species ID:</label>
-                <input
-                    type="text"
+                <label>Species:</label>
+                <select
                     value={speciesId}
                     onChange={(e) => setSpeciesId(e.target.value)}
                     required
-                />
+                    disabled={speciesOptions.length === 0}
+                >
+                    <option value="">
+                        {speciesOptions.length === 0 ? "No species available" : "-- Select Species --"}
+                    </option>
+                    {speciesOptions.map((s) => (
+                        <option key={s.species_id} value={s.species_id}>
+                            {s.species_name}
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <div>
@@ -94,12 +142,21 @@ const HerdForm = ({ onSubmit, herd = {}, isEditing, isAdmin, farmIdFromUser }) =
             </div>
 
             <div>
-                <label>Schedule ID:</label>
-                <input
-                    type="text"
+                <label>Feeding Schedule:</label>
+                <select
                     value={scheduleId}
                     onChange={(e) => setScheduleId(e.target.value)}
-                />
+                    disabled={scheduleOptions.length === 0}
+                >
+                    <option value="">
+                        {scheduleOptions.length === 0 ? "No schedules available" : "-- Select Schedule --"}
+                    </option>
+                    {scheduleOptions.map((s) => (
+                        <option key={s.schedule_id} value={s.schedule_id}>
+                            {s.food_type} - {s.feeding_interval}
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <div>

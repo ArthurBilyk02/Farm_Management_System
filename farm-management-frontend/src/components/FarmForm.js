@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "./Form.css";
 
 const FarmForm = ({ onSubmit, farm, isEditing }) => {
     const [location, setLocation] = useState("");
@@ -23,7 +24,7 @@ const FarmForm = ({ onSubmit, farm, isEditing }) => {
     };
 
     return (
-        <form className="farm-form" onSubmit={handleSubmit}>
+        <form className="form" onSubmit={handleSubmit}>
             <h3>{isEditing ? "Edit Farm" : "Add New Farm"}</h3>
 
             <div>

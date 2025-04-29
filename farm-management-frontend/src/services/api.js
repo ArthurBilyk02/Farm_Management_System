@@ -284,9 +284,13 @@ export const deleteAnimal = async (id, token) => {
     }
 };
 
-export const fetchSpecies = async () => {
+export const fetchSpecies = async (token) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/species`);
+        const response = await axios.get(`${API_BASE_URL}/species`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching species:", error);
