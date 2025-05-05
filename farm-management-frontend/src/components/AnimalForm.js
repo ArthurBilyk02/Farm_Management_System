@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { fetchSpecies, fetchFarms, fetchHerdsByFarm } from "../services/api";
+import { fetchSpecies, fetchFarms, fetchHerdsByFarm, fetchHerds } from "../services/api";
 import { useAuth } from "../context/auth/AuthContext";
 import "./Form.css";
 
@@ -27,17 +27,25 @@ const AnimalForm = ({ onSubmit, onCancel, animal = {}, isEditing, isAdmin, farmI
 
     const loadOptions = useCallback(async () => {
         try {
-            if (!user?.token) return;
-
-            const farms = await fetchFarms(user.token);
-            const species = await fetchSpecies(user.token);
-
-            setFarmOptions(farms);
-            setSpeciesOptions(species);
+          if (!user?.token) return;
+      
+          const farms = await fetchFarms(user.token);
+          const species = await fetchSpecies(user.token);
+          let herds = [];
+      
+          if (user.role_name === 'admin') {
+            herds = await fetchHerds(user.token);
+          } else {
+            herds = await fetchHerdsByFarm(user.token, farmIdFromUser);
+          }
+      
+          setFarmOptions(farms);
+          setSpeciesOptions(species);
+          setHerdOptions(herds);
         } catch (err) {
-            console.error("Error loading dropdown options:", err);
+          console.error("Error loading dropdown options:", err);
         }
-    }, [user?.token]);
+      }, [user?.token, user?.role_name, farmIdFromUser]);
 
     useEffect(() => {
         if (user?.token) loadOptions();

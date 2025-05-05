@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchAnimals, deleteAnimal, updateAnimal, createAnimal, fetchFarms, fetchHerds } from "../services/api";
+import { fetchAnimals, deleteAnimal, updateAnimal, createAnimal, fetchFarms } from "../services/api";
 import { useAuth } from "../context/auth/AuthContext";
 import AnimalForm from "./AnimalForm";
 import ConfirmModal from "./layout/ConfirmModal";
@@ -10,7 +10,6 @@ const AnimalList = () => {
     const { user } = useAuth();
     const [animals, setAnimals] = useState([]);
     const [farms, setFarms] = useState([]);
-    const [herds, setHerds] = useState([]);
     const [selectedAnimal, setSelectedAnimal] = useState(null);
     const [error, setError] = useState("");
     const [showForm, setShowForm] = useState(false);
@@ -24,10 +23,8 @@ const AnimalList = () => {
         try {
           const allAnimals = await fetchAnimals(user.token);
           const allFarms = await fetchFarms(user.token);
-          const allHerds = await fetchHerds(user.token);
   
           setFarms(allFarms);
-          setHerds(allHerds);
   
           if (user.role_name === "admin") {
             setAnimals(allAnimals);
@@ -117,11 +114,6 @@ const AnimalList = () => {
         console.error("Failed to refresh animal list:", err);
       }
     };
-
-    const getHerdName = (herdId) => {
-      const herd = herds.find((h) => h.herd_id === herdId);
-      return herd ? herd.herd_name : "Unknown";
-  };
   
     if (error) return <p className="error">{error}</p>;
   
@@ -165,7 +157,7 @@ const AnimalList = () => {
               <tr key={animal.animal_id}>
                 <td>{animal.name}</td>
                 <td>{animal.species_name}</td>
-                <td>{getHerdName(animal.herd_id)}</td>
+                <td>{animal.herd_name || "Unknown"}</td>
                 <td>{animal.dob ? animal.dob.split("T")[0] : "—"}</td>
                 {user.role_name === "admin" && (
                   <td>
