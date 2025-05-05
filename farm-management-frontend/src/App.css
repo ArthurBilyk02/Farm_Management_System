@@ -147,3 +147,10 @@ transform: scale(1.2) rotate(-10deg);
 .edit-emoji:hover {
   transform: scale(1.2) rotate(10deg);
 }
+
+tr:hover {
+  background-color: #f3f4f6;
+  transform: scale(1.01);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}

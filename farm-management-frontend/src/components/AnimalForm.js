@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { fetchSpecies, fetchFarms, fetchHerds } from "../services/api";
+import { fetchSpecies, fetchFarms, fetchHerdsByFarm } from "../services/api";
 import { useAuth } from "../context/auth/AuthContext";
 import "./Form.css";
 
@@ -14,7 +14,6 @@ const AnimalForm = ({ onSubmit, onCancel, animal = {}, isEditing, isAdmin, farmI
     const [speciesOptions, setSpeciesOptions] = useState([]);
     const [farmOptions, setFarmOptions] = useState([]);
     const [herdOptions, setHerdOptions] = useState([]);
-
 
     useEffect(() => {
         if (animal) {
@@ -31,11 +30,9 @@ const AnimalForm = ({ onSubmit, onCancel, animal = {}, isEditing, isAdmin, farmI
             if (!user?.token) return;
 
             const farms = await fetchFarms(user.token);
-            const herds = await fetchHerds(user.token);
             const species = await fetchSpecies(user.token);
 
             setFarmOptions(farms);
-            setHerdOptions(herds);
             setSpeciesOptions(species);
         } catch (err) {
             console.error("Error loading dropdown options:", err);
@@ -45,6 +42,24 @@ const AnimalForm = ({ onSubmit, onCancel, animal = {}, isEditing, isAdmin, farmI
     useEffect(() => {
         if (user?.token) loadOptions();
     }, [user, loadOptions]);
+
+    useEffect(() => {
+        const loadHerds = async () => {
+            try {
+                if (user?.token && farmId) {
+                    const herds = await fetchHerdsByFarm(user.token, farmId);
+                    setHerdOptions(herds);
+                } else {
+                    setHerdOptions([]);
+                }
+            } catch (err) {
+                console.error("Error fetching herds by farm:", err);
+                setHerdOptions([]);
+            }
+        };
+
+        loadHerds();
+    }, [farmId, user?.token]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -79,7 +94,10 @@ const AnimalForm = ({ onSubmit, onCancel, animal = {}, isEditing, isAdmin, farmI
                     <label>Farm Location:</label>
                     <select
                         value={farmId}
-                        onChange={(e) => setFarmId(e.target.value)}
+                        onChange={(e) => {
+                            setFarmId(e.target.value);
+                            setHerdId("");
+                        }}
                         required
                         disabled={farmOptions.length === 0}
                     >
