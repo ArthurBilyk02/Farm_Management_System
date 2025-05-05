@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../context/auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = "http://34.252.162.231/api/v1";
+const API_BASE_URL = "/api/v1";
 
 
 const Login = () => {

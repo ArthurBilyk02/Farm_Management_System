@@ -101,7 +101,7 @@ const FeedingList = () => {
             {(user.role_name === "admin" || user.role_name === "employee") && (
               <div className="add-button-container">  
                 <button onClick={handleCreate} className="add-btn">
-                    ➕ Add New Herd
+                    ➕ Add New Feeding Type
                 </button>
               </div>
             )}
@@ -137,11 +137,7 @@ const FeedingList = () => {
                     <td>{f.schedule_food_type} - {f.schedule_feeding_interval}</td>
                     <td>{f.species_name}</td>
                     <td>{f.description}</td>
-                    {user.role_name === "admin" ? (
-                    <td>{f.farm_location}</td>
-                    ) : (
-                    <td></td>
-                    )}
+                    {user.role_name === "admin" && <td>{f.farm_location}</td>}
                     <td>
                       {(user.role_name === "admin" || user.role_name === "employee") && (
                         <>

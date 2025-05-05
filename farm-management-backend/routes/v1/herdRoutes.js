@@ -7,13 +7,20 @@ const { verifyToken, requireRole } = require('../../middlewares/authMiddleware')
 router.get('/', verifyToken, (req, res) => {
     const { role_name, farm_id } = req.user;
 
-    let query = 'SELECT * FROM Herd';
+    let query = `
+    SELECT 
+        Herd.*, 
+        Feeding_Schedule.food_type, 
+        Feeding_Schedule.feeding_interval 
+    FROM Herd 
+    LEFT JOIN Feeding_Schedule 
+        ON Herd.schedule_id = Feeding_Schedule.schedule_id
+    `;
     let params = [];
 
-    // If not admin, restrict by farm_id
     if (role_name !== 'admin') {
-        query += ' WHERE farm_id = ?';
-        params.push(farm_id);
+    query += ' WHERE Herd.farm_id = ?';
+    params.push(farm_id);
     }
 
     db.query(query, params, (err, results) => {
@@ -90,7 +97,6 @@ router.put('/:id', verifyToken, requireRole(['admin', 'employee']), (req, res) =
 
     // Employees can only update herds from their own farm and cannot change the farm_id
     if (req.user.role_name === 'employee') {
-        // First fetch the current farm_id of the herd to compare
         db.query('SELECT farm_id FROM Herd WHERE herd_id = ?', [id], (err, results) => {
             if (err) return res.status(500).json({ error: "Database error while verifying herd" });
             if (results.length === 0) return res.status(404).json({ error: "Herd not found" });
@@ -102,10 +108,8 @@ router.put('/:id', verifyToken, requireRole(['admin', 'employee']), (req, res) =
                 return res.status(403).json({ error: "Unauthorized to update this herd." });
             }
 
-            // Lock the farm_id so employees can't change it
             farm_id = currentFarmId;
 
-            // Normalize schedule_id
             const normalizedScheduleId = schedule_id === '' ? null : schedule_id;
 
             db.query(
@@ -151,7 +155,6 @@ router.delete('/:id', verifyToken, requireRole(['admin', 'employee']), (req, res
                 return res.status(403).json({ error: "You are not authorized to delete this herd." });
             }
 
-            // If authorized
             db.query('DELETE FROM Herd WHERE herd_id = ?', [id], (err, result) => {
                 if (err) return res.status(500).json({ error: "Error deleting herd" });
                 res.json({ message: "Herd deleted successfully" });
@@ -159,7 +162,6 @@ router.delete('/:id', verifyToken, requireRole(['admin', 'employee']), (req, res
         });
 
     } else {
-        // Admins can delete anything
         db.query('DELETE FROM Herd WHERE herd_id = ?', [id], (err, result) => {
             if (err) return res.status(500).json({ error: "Error deleting herd" });
             if (result.affectedRows === 0) return res.status(404).json({ message: "Herd not found" });

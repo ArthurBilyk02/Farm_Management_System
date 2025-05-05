@@ -22,13 +22,17 @@ const HerdForm = ({ onSubmit, onCancel, herd = {}, isEditing, isAdmin, farmIdFro
     useEffect(() => {
         if (herd) {
             setHerdName(herd.herd_name || "");
-            setFarmId(isAdmin ? (herd.farm_id || "") : farmIdFromUser || "");
+            setFarmId(isAdmin ? String(herd.farm_id || "") : String(farmIdFromUser || ""));
             setSpeciesId(herd.species_id || "");
             setSize(herd.size || "");
             setDateCreated(herd.date_created ? herd.date_created.split("T")[0] : "");
             setScheduleId(herd.schedule_id || "");
             setHealthStatus(herd.health_status || "");
             setDescription(herd.description || "");
+        } else {
+            if (!isAdmin && farmIdFromUser) {
+                setFarmId(String(farmIdFromUser));
+            }
         }
     }, [herd, isAdmin, farmIdFromUser]);
 
@@ -106,7 +110,7 @@ const HerdForm = ({ onSubmit, onCancel, herd = {}, isEditing, isAdmin, farmIdFro
                         value={farmId}
                         onChange={(e) => {
                             setFarmId(e.target.value);
-                            setScheduleId(""); // Reset schedule when farm changes
+                            setScheduleId("");
                         }}
                         required
                         disabled={farmOptions.length === 0}

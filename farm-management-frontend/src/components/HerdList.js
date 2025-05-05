@@ -138,6 +138,7 @@ const HerdList = () => {
             <th>Herd Name</th>
             <th>Species</th>
             <th>Size</th>
+            <th>Feeding Schedule</th>
             <th>Health Status</th>
             <th>Description</th>
             {user.role_name === "admin" && <th>Farm Location</th>}
@@ -150,6 +151,11 @@ const HerdList = () => {
               <td>{herd.herd_name}</td>
               <td>{getSpeciesName(herd.species_id)}</td>
               <td>{herd.size}</td>
+              <td>
+                {herd.food_type 
+                  ? `${herd.food_type} - ${herd.feeding_interval}` 
+                  : "No Schedule"}
+              </td>
               <td>{herd.health_status}</td>
               <td>{herd.description}</td>
               {user.role_name === "admin" && (

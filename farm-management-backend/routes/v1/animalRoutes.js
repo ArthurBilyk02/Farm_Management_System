@@ -8,15 +8,18 @@ router.get('/', verifyToken, (req, res) => {
     const { role_name, farm_id } = req.user;
 
     let query = `
-  SELECT a.*, s.species_name, f.location AS farm_location
-  FROM Animal a 
-  JOIN Species s ON a.species_id = s.species_id
-  JOIN Farm f ON a.farm_id = f.farm_id
+        SELECT 
+            Animal.*, 
+            Herd.herd_name,
+            Species.species_name
+        FROM Animal
+        LEFT JOIN Herd ON Animal.herd_id = Herd.herd_id
+        LEFT JOIN Species ON Animal.species_id = Species.species_id
     `;
-    const params = [];
+    let params = [];
 
     if (role_name !== 'admin') {
-        query += ' WHERE a.farm_id = ?';
+        query += ' WHERE Animal.farm_id = ?';
         params.push(farm_id);
     }
 
