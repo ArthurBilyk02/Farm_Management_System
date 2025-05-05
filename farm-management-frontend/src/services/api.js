@@ -183,6 +183,14 @@ export const fetchHerdById = async (id, token) => {
     }
 };
 
+export const fetchHerdsByFarm = async (token, farmId) => {
+    const response = await fetch(`${API_BASE_URL}/herd/by-farm/${farmId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error("Failed to fetch herds by farm");
+    return await response.json();
+};
+
 // Create a new herd
 export const createHerd = async (herdData, token) => {
     try {
@@ -343,6 +351,14 @@ export const fetchSchedules = async (token) => {
         headers: { Authorization: `Bearer ${token}` },
     });
     return res.data;
+};
+
+export const fetchSchedulesByFarm = async (token, farmId) => {
+    const response = await fetch(`${API_BASE_URL}/feeding-schedule/by-farm/${farmId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error("Failed to fetch filtered schedules");
+    return await response.json();
 };
 
 export const createSchedule = async (scheduleData, token) => {

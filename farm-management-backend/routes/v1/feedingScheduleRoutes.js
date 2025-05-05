@@ -24,6 +24,20 @@ router.get('/', verifyToken, (req, res) => {
     });
 });
 
+// Get feeding schedules by farm_id
+router.get('/by-farm/:farmId', verifyToken, (req, res) => {
+    const { farmId } = req.params;
+
+    db.query(
+        'SELECT * FROM Feeding_Schedule WHERE farm_id = ?',
+        [farmId],
+        (err, results) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(results);
+        }
+    );
+});
+
 // Get a single feeding schedule by ID
 router.get('/:id', verifyToken, (req, res) => {
     const { id } = req.params;

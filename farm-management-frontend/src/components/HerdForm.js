@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { fetchFarms, fetchSpecies, fetchSchedules } from "../services/api"; 
+import { fetchFarms, fetchSpecies, fetchSchedulesByFarm } from "../services/api"; 
 import { useAuth } from "../context/auth/AuthContext";
-import "./Form.css"
+import "./Form.css";
 
 const HerdForm = ({ onSubmit, onCancel, herd = {}, isEditing, isAdmin, farmIdFromUser }) => {
     const { user } = useAuth();
@@ -38,11 +38,9 @@ const HerdForm = ({ onSubmit, onCancel, herd = {}, isEditing, isAdmin, farmIdFro
 
             const farms = await fetchFarms(user.token);
             const species = await fetchSpecies(user.token);
-            const schedules = await fetchSchedules(user.token);
 
             setFarmOptions(farms);
             setSpeciesOptions(species);
-            setScheduleOptions(schedules);
         } catch (err) {
             console.error("Error loading dropdown options:", err);
         }
@@ -51,6 +49,24 @@ const HerdForm = ({ onSubmit, onCancel, herd = {}, isEditing, isAdmin, farmIdFro
     useEffect(() => {
         if (user?.token) loadOptions();
     }, [user, loadOptions]);
+
+    useEffect(() => {
+        const loadFilteredSchedules = async () => {
+            try {
+                if (user?.token && farmId) {
+                    const schedules = await fetchSchedulesByFarm(user.token, farmId);
+                    setScheduleOptions(schedules);
+                } else {
+                    setScheduleOptions([]);
+                }
+            } catch (err) {
+                console.error("Error loading filtered schedules:", err);
+                setScheduleOptions([]);
+            }
+        };
+
+        loadFilteredSchedules();
+    }, [farmId, user?.token]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -88,7 +104,10 @@ const HerdForm = ({ onSubmit, onCancel, herd = {}, isEditing, isAdmin, farmIdFro
                     <label>Farm Location:</label>
                     <select
                         value={farmId}
-                        onChange={(e) => setFarmId(e.target.value)}
+                        onChange={(e) => {
+                            setFarmId(e.target.value);
+                            setScheduleId(""); // Reset schedule when farm changes
+                        }}
                         required
                         disabled={farmOptions.length === 0}
                     >
@@ -175,10 +194,11 @@ const HerdForm = ({ onSubmit, onCancel, herd = {}, isEditing, isAdmin, farmIdFro
                     onChange={(e) => setDescription(e.target.value)}
                 />
             </div>
+
             <div style={{ marginTop: "10px" }}>
                 <button type="submit">{isEditing ? "Update" : "Create"}</button>
                 <button type="button" onClick={onCancel} style={{ marginLeft: "10px" }}>
-                        Cancel
+                    Cancel
                 </button>
             </div>
         </form>
