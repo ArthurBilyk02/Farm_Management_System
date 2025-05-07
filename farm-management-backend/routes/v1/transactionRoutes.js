@@ -5,11 +5,17 @@ const { verifyToken, requireRole } = require('../../middlewares/authMiddleware')
 
 // Get All Transactions
 router.get('/', verifyToken, (req, res) => {
-    db.query('SELECT * FROM Transactions', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
+    const query = `
+      SELECT t.*, f.location AS farm_name
+      FROM Transactions t
+      LEFT JOIN Farm f ON t.farm_id = f.farm_id
+    `;
+  
+    db.query(query, (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results);
     });
-});
+  });
 
 // Get a Specific Transaction by ID
 router.get('/:id', verifyToken, (req, res) => {
@@ -23,7 +29,7 @@ router.get('/:id', verifyToken, (req, res) => {
 
 // Create a New Transaction
 router.post('/', verifyToken, requireRole(['admin', 'employee']), (req, res) => {
-    const { product_id, transaction_type, quantity, transaction_date, total_cost } = req.body;
+    const { product_id, transaction_type, quantity, transaction_date, total_cost, farm_id } = req.body;
 
     if (!product_id || !transaction_type || !quantity || !total_cost) {
         return res.status(400).json({ error: "All fields (product_id, transaction_type, quantity, total_cost) are required" });
@@ -36,8 +42,9 @@ router.post('/', verifyToken, requireRole(['admin', 'employee']), (req, res) => 
         }
 
         db.query(
-            'INSERT INTO Transactions (product_id, transaction_type, quantity, transaction_date, total_cost) VALUES (?, ?, ?, ?, ?)',
-            [product_id, transaction_type, quantity, transaction_date || new Date(), total_cost],
+            'INSERT INTO Transactions (product_id, transaction_type, quantity, transaction_date, total_cost, farm_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [product_id, transaction_type, quantity, transaction_date || new Date(), total_cost, farm_id],
+
             (err, result) => {
                 if (err) return res.status(500).json({ error: err.message });
                 res.json({ message: "Transaction created successfully", transaction_id: result.insertId });

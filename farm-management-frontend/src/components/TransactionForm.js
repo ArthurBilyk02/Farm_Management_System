@@ -7,7 +7,7 @@ import { useAuth } from "../context/auth/AuthContext";
 import { formatWeight } from "../utils/utils";
 import "./Form.css";
 
-const TransactionForm = ({ transaction = {}, products = [], onSubmit, onCancel, reloadProducts }) => {
+const TransactionForm = ({ transaction = {}, products = [], farms = [], onSubmit, onCancel, reloadProducts }) => {
   const safeTransaction = useMemo(() => transaction || {}, [transaction]);
 
   const [productId, setProductId] = useState(safeTransaction.product_id || "");
@@ -21,6 +21,7 @@ const TransactionForm = ({ transaction = {}, products = [], onSubmit, onCancel, 
   const { user } = useAuth();
   const [productToDelete, setProductToDelete] = useState(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [farmId, setFarmId] = useState(safeTransaction.farm_id || "");
 
   useEffect(() => {
     if (!safeTransaction.transaction_date) {
@@ -36,7 +37,8 @@ const TransactionForm = ({ transaction = {}, products = [], onSubmit, onCancel, 
       transaction_type: transactionType,
       quantity: parseFloat(quantity),
       transaction_date: transactionDate,
-      total_cost: parseFloat(totalCost)
+      total_cost: parseFloat(totalCost),
+      farm_id: parseInt(farmId),
     });
   };
 
@@ -78,6 +80,21 @@ const TransactionForm = ({ transaction = {}, products = [], onSubmit, onCancel, 
       <form className="form" onSubmit={handleSubmit}>
         <h3>{safeTransaction.transaction_id ? "Edit Transaction" : "Add Transaction"}</h3>
 
+        <div>
+          <label>Farm:</label>
+          <select
+            value={farmId}
+            onChange={(e) => setFarmId(e.target.value)}
+            required
+          >
+            <option value="">-- Select Farm --</option>
+            {farms.map((f) => (
+              <option key={f.farm_id} value={f.farm_id}>
+                {f.farm_name || f.location}
+              </option>
+            ))}
+          </select>
+        </div>
         <div>
           <label>Product:</label>
           <select
