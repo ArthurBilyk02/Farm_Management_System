@@ -4,6 +4,7 @@ import { useAuth } from "../context/auth/AuthContext";
 import ConfirmModal from "./layout/ConfirmModal";
 import TransactionForm from "./TransactionForm";
 import { formatWeight, fixDate, downloadCSV } from "../utils/utils";
+import { fetchFarms } from "../services/api";
 
 const TransactionList = () => {
   const { user } = useAuth();
@@ -16,6 +17,7 @@ const TransactionList = () => {
   const [showConfirmUpdate, setShowConfirmUpdate] = useState(false);
   const [pendingEditData, setPendingEditData] = useState(null);
   const [error, setError] = useState("");
+  const [farms, setFarms] = useState([]);
 
   const loadTransactions = useCallback(async () => {
     try {
@@ -80,6 +82,7 @@ const TransactionList = () => {
       try {
         await createTransaction(formData, user.token);
         await loadTransactions();
+        await loadProducts();
         setShowForm(false);
         setSelectedTransaction(null);
       } catch (err) {
@@ -93,6 +96,7 @@ const TransactionList = () => {
     try {
       await updateTransaction(selectedTransaction.transaction_id, pendingEditData, user.token);
       await loadTransactions();
+      await loadProducts();
       setShowForm(false);
       setSelectedTransaction(null);
     } catch (err) {
@@ -103,6 +107,21 @@ const TransactionList = () => {
       setPendingEditData(null);
     }
   };
+
+  const loadFarms = useCallback(async () => {
+    try {
+      const data = await fetchFarms(user.token);
+      setFarms(data);
+    } catch (err) {
+      console.error("Failed to load farms:", err);
+    }
+  }, [user?.token]);
+
+  useEffect(() => {
+    if (user?.token) {
+      loadFarms();
+    }
+  }, [user, loadFarms]);
 
   const getProductName = (productId) => {
     const product = products.find((p) => p.product_id === productId);
@@ -127,6 +146,7 @@ const TransactionList = () => {
         <TransactionForm
           transaction={selectedTransaction}
           products={products}
+          farms={farms}
           onSubmit={handleFormSubmit}
           onCancel={() => setShowForm(false)}
           reloadProducts={loadProducts}
@@ -141,6 +161,7 @@ const TransactionList = () => {
             <th>Quantity</th>
             <th>Date</th>
             <th>Total Cost</th>
+            <th>Farm</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -152,6 +173,7 @@ const TransactionList = () => {
               <td>{formatWeight(t.quantity)}</td>
               <td>{fixDate(t.transaction_date)}</td>
               <td>{new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(t.total_cost)}</td>
+              <td>{t.farm_name || "Unknown"}</td>
               <td>
                 {(user.role_name === "admin" || user.role_name === "employee") && (
                   <>

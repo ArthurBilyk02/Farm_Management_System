@@ -1,3 +1,4 @@
+USE farm_management;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- Drop existing tables if they exist
@@ -104,7 +105,9 @@ CREATE TABLE IF NOT EXISTS Transactions (
     quantity FLOAT NOT NULL,
     transaction_date DATE DEFAULT (CURRENT_DATE),
     total_cost FLOAT NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES Product_Stock(product_id) ON DELETE CASCADE
+    farm_id INT NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES Product_Stock(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (farm_id) REFERENCES Farm(farm_id) ON DELETE CASCADE
 );
 
 -- Table: Users
@@ -207,7 +210,8 @@ VALUES
 (3, 'Chicken', 'Poultry farming for eggs and meat'),
 (4, 'Pig', 'Domesticated pigs for meat production'),
 (5, 'Chicken', 'Layers and broilers'),
-(6, 'Other', 'Other');
+(6, 'Fish', ' Fish'),
+(7, 'Other', 'Other');
 
 -- Insert Herds
 INSERT INTO Herd (herd_name, farm_id, species_id, size, date_created, schedule_id, health_status, description) 
@@ -262,12 +266,12 @@ VALUES
 
 
 -- Insert Transactions
-INSERT INTO Transactions (product_id, transaction_type, quantity, transaction_date, total_cost)
+INSERT INTO Transactions (product_id, transaction_type, quantity, transaction_date, total_cost, farm_id)
 VALUES 
-    (1, 'Stock_Purchase', 100, NOW(), 500.00),
-    (2, 'Stock_Sale', 50, NOW(), 300.00),
-    (3, 'Animal_Purchase', 5, NOW(), 2500.00),
-    (4, 'Animal_Sale', 2, NOW(), 1000.00);
+    (1, 'Stock_Purchase', 100, NOW(), 500.00, 1),
+    (2, 'Stock_Sale', 50, NOW(), 300.00, 1),
+    (3, 'Animal_Purchase', 5, NOW(), 2500.00, 2),
+    (4, 'Animal_Sale', 2, NOW(), 1000.00, 3);
 
 -- Insert Users
 INSERT INTO Users (employee_id, farm_id, email, password, role_name) 
