@@ -82,6 +82,7 @@ const TransactionList = () => {
       try {
         await createTransaction(formData, user.token);
         await loadTransactions();
+        await loadProducts();
         setShowForm(false);
         setSelectedTransaction(null);
       } catch (err) {
@@ -95,6 +96,7 @@ const TransactionList = () => {
     try {
       await updateTransaction(selectedTransaction.transaction_id, pendingEditData, user.token);
       await loadTransactions();
+      await loadProducts();
       setShowForm(false);
       setSelectedTransaction(null);
     } catch (err) {
